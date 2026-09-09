@@ -5,59 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrayectorIA</title>
     <link rel="stylesheet" href="style.css">
-        <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 </head>
 <body>
-<header id="inicio" class="hero">
-    <div class="container">
-        <h1>TrayectorIA</h1>
-        <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
-    </div>
-</header>
 
-<section id="quienes-somos" class="nosotros"></section>
-<div class="container about-container">
-    <div class="about-text">
-        <h2><h2>¿Quiénes Somos?</h2>
-        <p> Somos un equipo dedicado al desarrollo de soluciones tecnológicas orientadas al ámbito educativo.
-            Nuestro objetivo es desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático, 
-            capaz de identificar anticipadamente a estudiantes que presentan un mayor riesgo de deserción académica. </p>
-        <p> A través del análisis de datos, buscamos transformar la información en conocimiento útil que permita detectar posibles
-            factores de riesgo y facilitar la toma de decisiones, contribuyendo así a la prevención de la deserción estudiantil.</p>    
-    </div>
-</div>
-<section id="problema" class="section-dark" >
-    <div class="container">
-        <h2>Contexto del Problema</h2>
-        <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior. TrayectorIA busca mitigar esto 
-                        mediante minería de datos y aprendizaje automático.
-        </p>
-        <div problem-grid>
-            <div class="card">
-                <h3>El Problema</h3>
-                <p>Los sistemas preventivos actuales tienen mucho margen de mejora y no logran detectar a tiempo a los estudiantes en riesgo.</p>
+    <!-- HERO SECTION -->
+    <header id="inicio" class="hero">
+        <div class="container">
+            <h1>TrayectorIA</h1>
+            <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
+        </div>
+    </header>
+
+    <!-- CONTEXTO DEL PROBLEMA -->
+    <section id="problema" class="section-dark">
+        <div class="container">
+            <h2>Contexto del Problema</h2>
+            <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
+            
+            <div class="problem-single">
+                <div class="card-solucion">
+                    <h3>Nuestra Solución</h3>
+                    <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section id="objetivos" class="section-light">
-    <div class="container">
-        <h2>Objetivos del proyecto</h2>
-        <div class="main-objetivo">
-            <h3>Objetivo General</h3>
-            <p>Desarrollar un modelo de Machine Learning que permita identificar estudiantes con riesgo de deserción para apoyar la detección temprana y la toma de decisiones.</p>
+    <!-- OBJETIVOS DEL PROYECTO -->
+    <section id="objetivos" class="section-light">
+        <div class="container">
+            <h2>Objetivos del Proyecto</h2>
+            <div class="main-objetivo">
+                <h3>Objetivo General</h3>
+                <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+            </div>
+            <ul class="lista-objetivos">
+                <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
+                <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
+                <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
+                <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
+                <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
+                <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
+            </ul>
         </div>
-        <ul class="lista-objetivos">
-            <li>Preparar un conjunto de datos robusto.</li>
-            <li>Realizar análisis exploratorio de patrones.</li>
-            <li>Entrenar y validar modelos predictivos.</li>
-            <li>Identificar perfiles clave de riesgo.</li>
-            <li>Medir el desempeño mediante métricas rigurosas.</li>
-            <li>Desarrollar visualizaciones con insights clave.</li>
-        </ul>
-    </div>
-</section>
+    </section>
+
+    <!-- EQUIPO DE TRABAJO -->
+    <section id="equipo" class="section-dark">
+        <div class="container">
+            <h2>Integrantes Del Equipo</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <h3>INTEGRANTE 1</h3>
+                    <p><strong>Nombre:</strong> Benjamin Torres</p>
+                    <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                </div>
+                <div class="team-card">
+                    <h3>INTEGRANTE 2</h3>
+                    <p><strong>Nombre:</strong> Denilxon Azua</p>
+                    <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                </div>
+                <div class="team-card">
+                    <h3>INTEGRANTE 3</h3>
+                    <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
+                    <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </body>
 </html>
