@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrayectorIA</title>
+    <!-- Tu archivo de estilos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos de RemixIcon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR FIJA -->
+    <header class="top-navbar">
+        <div class="top-nav-container">
+            <div class="top-left">
+                <!-- Botón de despliegue con tu icono -->
+                <button id="sidebar-toggle" class="toggle-btn" aria-label="Menú">
+                    <i class="ri-align-justify"></i>
+                </button>
+                <!-- Logo y Nombre -->
+                <div class="brand-logo">
+                    <i class="ri-brain-line"></i>
+                    <span>TrayectorIA</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) - Inicia cerrada con la clase 'collapsed' -->
+    <aside id="sidebar" class="sidebar collapsed">
+        <ul class="sidebar-menu">
+            <li><a href="#inicio"><i class="ri-home-line"></i> <span class="menu-text">Inicio</span></a></li>
+            <li><a href="#problema"><i class="ri-alert-line"></i> <span class="menu-text">Problema</span></a></li>
+            <li><a href="#objetivos"><i class="ri-flag-line"></i> <span class="menu-text">Objetivos</span></a></li>
+            <li><a href="#equipo"><i class="ri-team-line"></i> <span class="menu-text">Equipo</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL - Inicia expandido con la clase 'expanded' -->
+    <main id="main-content" class="main-content expanded">
+        
+        <!-- HERO SECTION -->
+        <section id="inicio" class="hero">
+            <div class="container">
+                <h1>TrayectorIA</h1>
+                <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
+            </div>
+        </section>
+
+        <!-- CONTEXTO DEL PROBLEMA -->
+        <section id="problema" class="section-dark">
+            <div class="container">
+                <h2>Contexto del Problema</h2>
+                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
+                
+                <div class="problem-single">
+                    <div class="card-solucion">
+                        <h3>Nuestra Solución</h3>
+                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OBJETIVOS DEL PROYECTO -->
+        <section id="objetivos" class="section-light">
+            <div class="container">
+                <h2>Objetivos del Proyecto</h2>
+                <div class="main-objetivo">
+                    <h3>Objetivo General</h3>
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- EQUIPO DE TRABAJO -->
+        <section id="equipo" class="section-dark">
+            <div class="container">
+                <h2>Integrantes Del Equipo</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>INTEGRANTE 1</h3>
+                        <p><strong>Nombre:</strong> Benjamin Torres</p>
+                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 2</h3>
+                        <p><strong>Nombre:</strong> Denilxon Azua</p>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 3</h3>
+                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
+                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- SCRIPT PARA EL BOTÓN DE DESPLIEGUE -->
+    <script>
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+    </script>
+</body>
+</html>
