@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrayectorIA</title>
+    <!-- Tu archivo de estilos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos de RemixIcon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR FIJA -->
+    <header class="top-navbar">
+        <div class="top-nav-container">
+            <!-- Lado izquierdo: Menú y Logo -->
+            <div class="top-left">
+                <button id="sidebar-toggle" class="toggle-btn" aria-label="Menú">
+                    <i class="ri-align-justify"></i>
+                </button>
+                <div class="brand-logo">
+                    <img src="Imagenes/ICO.png" alt="Logo TrayectorIA" class="logo-img">
+                    TrayectorIA
+                </div>
+            </div>
+            
+            <!-- Lado derecho: Botón de Usuario (Solo ícono grande sin contorno) -->
+            <div class="top-right">
+                <button id="open-auth-modal" class="login-icon-btn" aria-label="Iniciar Sesión / Registrarse">
+                    <i class="ri-user-line"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+        <div class="top-right">
+            <button id="open-auth-modal" class="login-icon-btn" aria-label="Iniciar Sesión / Registrarse">
+                <i class="ri-user-line"></i>
+            </button>
+        </div>
+
+    <!-- BARRA LATERAL (SIDEBAR) - Inicia cerrada con la clase 'collapsed' -->
+    <aside id="sidebar" class="sidebar collapsed">
+        <ul class="sidebar-menu">
+            <li><a href="#inicio"><i class="ri-home-line"></i> <span class="menu-text">Inicio</span></a></li>
+            <li><a href="#problema"><i class="ri-alert-line"></i> <span class="menu-text">Problema</span></a></li>
+            <li><a href="#objetivos"><i class="ri-flag-line"></i> <span class="menu-text">Objetivos</span></a></li>
+            <li><a href="#stack"><i class="ri-cpu-line"></i> <span class="menu-text">Tecnologías</span></a></li>
+            <li><a href="#equipo"><i class="ri-team-line"></i> <span class="menu-text">Equipo</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL - Inicia expandido con la clase 'expanded' -->
+    <main id="main-content" class="main-content expanded">
+
+        <!-- HERO SECTION -->
+        <section id="inicio" class="hero">
+            <div class="container">
+                <img src="Imagenes/LOGO1.png" alt="Logo TrayectorIA" class="hero-logo">
+                <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
+            </div>
+        </section>
+
+        <!-- CONTEXTO DEL PROBLEMA -->
+        <section id="problema" class="section-dark">
+            <div class="container">
+                <h2>Contexto del Problema</h2>
+                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
+                
+                <div class="problem-single">
+                    <div class="card-solucion">
+                        <h3>Nuestra Solución</h3>
+                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OBJETIVOS DEL PROYECTO -->
+        <section id="objetivos" class="section-light">
+            <div class="container">
+                <h2>Objetivos del Proyecto</h2>
+                <div class="main-objetivo">
+                    <h3>Objetivo General</h3>
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+                </div>
+                <ul class="lista-objetivos">
+                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
+                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
+                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
+                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
+                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
+                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- EQUIPO DE TRABAJO -->
+        <section id="equipo" class="section-light">
+            <div class="container">
+                <h2>Integrantes Del Equipo</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>INTEGRANTE 1</h3>
+                        <p><strong>Nombre:</strong> Benjamin Torres</p>
+                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 2</h3>
+                        <p><strong>Nombre:</strong> Denilxon Azua</p>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 3</h3>
+                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
+                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- VENTANA MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button id="close-modal" class="close-btn"><i class="ri-close-line"></i></button>
+            
+            <!-- Pestañas para alternar entre Iniciar Sesión y Registrarse -->
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-target="login-form">Iniciar Sesión</button>
+                <button class="tab-btn" data-target="register-form">Registrarse</button>
+            </div>
+
+            <!-- FORMULARIO DE INICIO DE SESIÓN -->
+            <form id="login-form" class="auth-form active">
+                <h3>Bienvenido de nuevo</h3>
+                <div class="input-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+
+            <!-- FORMULARIO DE REGISTRO -->
+            <form id="register-form" class="auth-form">
+                <h3>Crea tu cuenta</h3>
+                <div class="input-group">
+                    <label for="register-email">Correo Electrónico</label>
+                    <input type="email" id="register-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Registrarse</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS PARA EL MENÚ Y LA MODAL DE AUTENTICACIÓN -->
+
+<script>
+    // Control de la barra lateral (Sidebar)
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+    }
+
+    // Control de la ventana modal de Autenticación
+    const authmodal = document.getElementById('auth-modal');
+    const openAuthBtn = document.getElementById('open-auth-modal');
+    const closeAuthBtn = document.getElementById('close-modal');
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const forms = document.querySelectorAll('.auth-form');
+
+    if (openAuthBtn) {
+        openAuthBtn.addEventListener('click', () => {
+            authmodal.classList.add('active');
+        });
+    }
+
+    if (closeAuthBtn) {
+        closeAuthBtn.addEventListener('click', () => {
+            authmodal.classList.remove('active');
+        });
+    }
+
+    if (authmodal) {
+        authmodal.addEventListener('click', (e) => {
+            if (e.target === authmodal) {
+                authmodal.classList.remove('active');
+            }
+        });
+    }
+
+    // Cambiar entre pestañas de Login y Registro
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.target).classList.add('active');
+        });
+    });
+
+    // 1. LÓGICA PARA EL REGISTRO
+    const registerForm = document.getElementById('register-form');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("¡Cuenta registrada exitosamente!");
+                    authmodal.classList.remove('active'); // CORREGIDO: Usando authModal
+                } else {
+                    alert(data.detail || "Error en el registro");
+                }
+            } catch (error) {
+                alert("No se pudo conectar con el servidor backend.");
+            }
+        });
+    }
+
+    // 2. LÓGICA PARA EL LOGIN
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert(`¡Bienvenido de nuevo, ${data.email}!`);
+                    authmodal.classList.remove('active'); // CORREGIDO: Usando authModal
+                } else {
+                    alert(data.detail || "Correo o contraseña incorrectos");
+                }
+            } catch (error) {
+                alert("No se pudo conectar con el servidor backend.");
+            }
+        });
+    }
+</script>
+</body>
+</html>
