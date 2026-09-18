@@ -121,6 +121,8 @@
 
     </main>
 
+    <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+    <div id="toast-container" class="toast-container"></div>
     <!-- VENTANA MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-container">
@@ -165,7 +167,40 @@
     <!-- SCRIPTS PARA EL MENÚ Y LA MODAL DE AUTENTICACIÓN -->
 
 <script>
-    // Control de la barra lateral (Sidebar)
+    // --- FUNCIÓN REUTILIZABLE PARA MOSTRAR NOTIFICACIONES TOAST ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        
+        // Crear elemento toast
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        // Icono según el tipo (éxito o error)
+        const iconClass = type === 'success' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line';
+        
+        toast.innerHTML = `
+            <i class="${iconClass}"></i>
+            <span>${message}</span>
+        `;
+        
+        // Agregar al contenedor
+        container.appendChild(toast);
+        
+        // Forzar reflow para activar la animación de entrada
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 10);
+        
+        // Eliminar el toast automáticamente después de 3.5 segundos
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300); // Espera a que termine la transición de salida
+        }, 3500);
+    }
+
+    // --- Control de la barra lateral (Sidebar) ---
     const toggleBtn = document.getElementById('sidebar-toggle');
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -177,8 +212,8 @@
         });
     }
 
-    // Control de la ventana modal de Autenticación
-    const authmodal = document.getElementById('auth-modal');
+    // --- Control de la ventana modal de Autenticación ---
+    const authModal = document.getElementById('auth-modal');
     const openAuthBtn = document.getElementById('open-auth-modal');
     const closeAuthBtn = document.getElementById('close-modal');
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -186,25 +221,24 @@
 
     if (openAuthBtn) {
         openAuthBtn.addEventListener('click', () => {
-            authmodal.classList.add('active');
+            authModal.classList.add('active');
         });
     }
 
     if (closeAuthBtn) {
         closeAuthBtn.addEventListener('click', () => {
-            authmodal.classList.remove('active');
+            authModal.classList.remove('active');
         });
     }
 
-    if (authmodal) {
-        authmodal.addEventListener('click', (e) => {
-            if (e.target === authmodal) {
-                authmodal.classList.remove('active');
+    if (authModal) {
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                authModal.classList.remove('active');
             }
         });
     }
 
-    // Cambiar entre pestañas de Login y Registro
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             tabBtns.forEach(b => b.classList.remove('active'));
@@ -215,7 +249,7 @@
         });
     });
 
-    // 1. LÓGICA PARA EL REGISTRO
+    // --- LÓGICA PARA EL REGISTRO (CON TOAST) ---
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
@@ -232,18 +266,19 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert("¡Cuenta registrada exitosamente!");
-                    authmodal.classList.remove('active'); // CORREGIDO: Usando authModal
+                    showToast("¡Cuenta creada exitosamente!", "success");
+                    authModal.classList.remove('active');
+                    registerForm.reset(); // Limpia los campos del formulario
                 } else {
-                    alert(data.detail || "Error en el registro");
+                    showToast(data.detail || "Error en el registro", "error");
                 }
             } catch (error) {
-                alert("No se pudo conectar con el servidor backend.");
+                showToast("No se pudo conectar con el servidor backend.", "error");
             }
         });
     }
 
-    // 2. LÓGICA PARA EL LOGIN
+    // --- LÓGICA PARA EL LOGIN (CON TOAST) ---
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
@@ -260,13 +295,14 @@
 
                 const data = await response.json();
                 if (response.ok) {
-                    alert(`¡Bienvenido de nuevo, ${data.email}!`);
-                    authmodal.classList.remove('active'); // CORREGIDO: Usando authModal
+                    showToast(`¡Bienvenido de nuevo, ${data.email}!`, "success");
+                    authModal.classList.remove('active');
+                    loginForm.reset(); // Limpia los campos del formulario
                 } else {
-                    alert(data.detail || "Correo o contraseña incorrectos");
+                    showToast(data.detail || "Correo o contraseña incorrectos", "error");
                 }
             } catch (error) {
-                alert("No se pudo conectar con el servidor backend.");
+                showToast("No se pudo conectar con el servidor backend.", "error");
             }
         });
     }

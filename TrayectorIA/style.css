@@ -388,3 +388,59 @@ h2 {
 .submit-btn:hover {
     background-color: #0ea5e9;
 }
+
+/* ESTILOS DEL CONTENEDOR DE TOASTS */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 9999;
+}
+
+/* ESTILO INDIVIDUAL DE CADA TOAST */
+.toast {
+    background-color: #0f172a;
+    color: #ffffff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    border: 1px solid #1e293b;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 280px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Estado activo para la animación de entrada */
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Variantes según el tipo de mensaje */
+.toast.success {
+    border-left: 4px solid #38bdf8; /* Azul acento de TrayectorIA */
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444; /* Rojo para errores */
+}
+
+.toast i {
+    font-size: 1.2rem;
+}
+
+.toast.success i {
+    color: #38bdf8;
+}
+
+.toast.error i {
+    color: #ef4444;
+}
