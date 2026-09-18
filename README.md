@@ -6,11 +6,11 @@ Su Objetivo es Predecir Deserciones Estudiantiles con el fin de otorgar informac
 <--Stack Tecnológico-->
 Frontend: HTML5, CSS3, JavaScript
 Backend: Python + FastAPI
-Base de datos: SQLite
+Base de datos: SQL Server
 Procesamiento de datos: Pandas + NumPy
 Machine Learning: Scikit-learn
 Persistencia del modelo: Joblib
-Visualización y análisis: Power BI
+Visualización y análisis: Chart.js
 Visualización web: Chart.js
 
 
