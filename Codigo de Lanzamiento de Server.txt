@@ -1,0 +1,12 @@
+<!--Carpeta del archivo--!>
+cd TrayectorIA-main\TrayectorIA
+
+<!--Encendido del servidor--!>
+py -m uvicorn main:app --reload
+
+
+
+Instalaciones necesarias:
+
+pip install fastapi uvicorn pydantic passlib[bcrypt] pyodbc
+pip install "bcrypt<4.0.0"
