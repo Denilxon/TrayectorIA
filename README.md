@@ -24,3 +24,10 @@ Metodología de Trabajo del equipo
 Tradicional Hibrida
 
 Instrucciones de ejecución Local
+
+py -m uvicorn main:app --reload
+
+Instalaciones necesarias:
+
+pip install fastapi uvicorn pydantic passlib[bcrypt] pyodbc
+pip install "bcrypt<4.0.0"
