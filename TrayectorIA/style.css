@@ -444,3 +444,187 @@ h2 {
 .toast.error i {
     color: #ef4444;
 }
+
+
+/* =========================================================
+   SECCIÓN DE CARGA DE DATOS / ANÁLISIS
+   Por ahora es únicamente visual; no contiene lógica de carga.
+   ========================================================= */
+.analysis-section {
+    background-color: #0f172a;
+    padding: 70px 0;
+    border-bottom: 1px solid #1e293b;
+}
+
+.analysis-container {
+    max-width: 900px;
+    text-align: center;
+}
+
+.analysis-heading {
+    max-width: 700px;
+    margin: 0 auto 28px;
+}
+
+.analysis-heading h2 {
+    margin: 6px 0 10px;
+}
+
+.analysis-heading p {
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.analysis-eyebrow {
+    color: #38bdf8;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.analysis-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.template-btn,
+.format-btn,
+.select-file-btn,
+.analyze-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.template-btn {
+    background-color: #38bdf8;
+    color: #0b1120;
+    border: 1px solid #38bdf8;
+}
+
+.template-btn:hover {
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
+    transform: translateY(-1px);
+}
+
+.format-btn {
+    background-color: transparent;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+}
+
+.format-btn:hover {
+    color: #ffffff;
+    border-color: #38bdf8;
+    background-color: #172033;
+    transform: translateY(-1px);
+}
+
+.upload-card {
+    min-height: 285px;
+    border: 2px dashed #334155;
+    border-radius: 14px;
+    background-color: #111b2e;
+    padding: 42px 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.upload-card:hover {
+    border-color: #38bdf8;
+    background-color: #132036;
+}
+
+.upload-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(56, 189, 248, 0.1);
+    color: #38bdf8;
+    margin-bottom: 16px;
+}
+
+.upload-icon i {
+    font-size: 2rem;
+}
+
+.upload-card h3 {
+    color: #f8fafc;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.upload-card > p {
+    color: #94a3b8;
+    margin-bottom: 18px;
+}
+
+.select-file-btn {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+}
+
+.select-file-btn:hover {
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+
+.upload-help {
+    margin-top: 14px;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.analyze-btn {
+    width: 100%;
+    margin-top: 18px;
+    background-color: #38bdf8;
+    color: #0b1120;
+    border: none;
+}
+
+.analyze-btn:disabled {
+    background-color: #334155;
+    color: #64748b;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+@media (max-width: 600px) {
+    .analysis-section {
+        padding: 45px 0;
+    }
+
+    .analysis-actions {
+        flex-direction: column;
+    }
+
+    .template-btn,
+    .format-btn {
+        width: 100%;
+    }
+
+    .upload-card {
+        min-height: 250px;
+        padding: 32px 18px;
+    }
+}

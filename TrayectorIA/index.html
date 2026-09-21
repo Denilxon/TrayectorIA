@@ -43,6 +43,7 @@
     <aside id="sidebar" class="sidebar collapsed">
         <ul class="sidebar-menu">
             <li><a href="#inicio"><i class="ri-home-line"></i> <span class="menu-text">Inicio</span></a></li>
+            <li><a href="#analisis"><i class="ri-file-upload-line"></i> <span class="menu-text">Análisis</span></a></li>
             <li><a href="#problema"><i class="ri-alert-line"></i> <span class="menu-text">Problema</span></a></li>
             <li><a href="#objetivos"><i class="ri-flag-line"></i> <span class="menu-text">Objetivos</span></a></li>
             <li><a href="#stack"><i class="ri-cpu-line"></i> <span class="menu-text">Tecnologías</span></a></li>
@@ -61,7 +62,7 @@
             </div>
         </section>
 
-        <!-- CONTEXTO DEL PROBLEMA -->
+                <!-- CONTEXTO DEL PROBLEMA -->
         <section id="problema" class="section-dark">
             <div class="container">
                 <h2>Contexto del Problema</h2>
@@ -76,15 +77,59 @@
             </div>
         </section>
 
+        <!-- CARGA DE DATOS PARA ANÁLISIS (INTERFAZ VISUAL) -->
+        <section id="analisis" class="analysis-section">
+            <div class="container analysis-container">
+                <div class="analysis-heading">
+                    <span class="analysis-eyebrow">Análisis predictivo</span>
+                    <h2>Analiza tus datos estudiantiles</h2>
+                    <p>
+                        Prepara la información de tu institución utilizando nuestra plantilla
+                        y carga el archivo para iniciar el análisis.
+                    </p>
+                </div>
+
+                <div class="analysis-actions">
+                    <button type="button" class="template-btn">
+                        <i class="ri-download-2-line"></i>
+                        <span>Descargar plantilla</span>
+                    </button>
+
+                    <button type="button" class="format-btn">
+                        <i class="ri-file-list-3-line"></i>
+                        <span>Ver formato requerido</span>
+                    </button>
+                </div>
+
+                <div class="upload-card">
+                    <div class="upload-icon">
+                        <i class="ri-upload-cloud-2-line"></i>
+                    </div>
+                    <h3>Arrastra tu archivo aquí</h3>
+                    <p>o selecciona un archivo desde tu equipo</p>
+                    <button type="button" class="select-file-btn">
+                        <i class="ri-folder-open-line"></i>
+                        Seleccionar archivo
+                    </button>
+                    <span class="upload-help">Formatos admitidos próximamente: CSV / XLSX</span>
+                </div>
+
+                <button type="button" class="analyze-btn" disabled>
+                    <i class="ri-line-chart-line"></i>
+                    Analizar datos
+                </button>
+            </div>
+        </section>
+
         <!-- OBJETIVOS DEL PROYECTO -->
         <section id="objetivos" class="section-light">
             <div class="container">
-                <h2>Objetivos del Proyecto</h2>
+                <h2>Nuestra Misión es...</h2>
                 <div class="main-objetivo">
-                    <h3>Objetivo General</h3>
                     <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
                 </div>
                 <ul class="lista-objetivos">
+                    <h3>Logramos esto mediante...</h3>
                     <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
                     <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
                     <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
@@ -98,7 +143,7 @@
         <!-- EQUIPO DE TRABAJO -->
         <section id="equipo" class="section-light">
             <div class="container">
-                <h2>Integrantes Del Equipo</h2>
+                <h2>Nuestros Integrantes</h2>
                 <div class="team-grid">
                     <div class="team-card">
                         <h3>INTEGRANTE 1</h3>
