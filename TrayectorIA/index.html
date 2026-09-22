@@ -102,11 +102,25 @@
                     </div>
                     <h3>Arrastra tu archivo aquí</h3>
                     <p>o selecciona un archivo desde tu equipo</p>
+                    <input
+                        type="file"
+                        id="file-input"
+                        accept=".csv,.xlsx"
+                        hidden
+                    >
                     <button type="button" class="select-file-btn">
                         <i class="ri-folder-open-line"></i>
                         Seleccionar archivo
                     </button>
-                    <span class="upload-help">Formatos admitidos próximamente: CSV / XLSX</span>
+                    <div id="file-info" class="file-info" hidden>
+                        <i class="ri-file-check-line"></i>
+
+                        <div class="file-details">
+                            <span id="file-name"></span>
+                            <span id="file-size"></span>
+                        </div>
+                    </div>
+                    <span class="upload-help">Formatos admitidos: CSV / XLSX</span>
                 </div>
 
                 <button type="button" class="analyze-btn" disabled>
@@ -207,5 +221,6 @@
     <!-- SCRIPTS PARA EL MENÚ Y LA MODAL DE AUTENTICACIÓN -->
 <script src="js/main.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/upload.js"></script>
 </body>
 </html>
