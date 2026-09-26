@@ -24,31 +24,36 @@
                     TrayectorIA
                 </div>
             </div>
-            
-            <!-- Lado derecho: Botón de Usuario (Solo ícono grande sin contorno) -->
+
+            <!-- Lado derecho: Botón de Usuario / Información de Sesión -->
             <div class="top-right">
                 <button id="open-auth-modal" class="login-icon-btn" aria-label="Iniciar Sesión / Registrarse">
                     <i class="ri-user-line"></i>
+                    <span id="user-email-display" class="user-email-text" style="display: none;"></span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- BARRA LATERAL (SIDEBAR) - Inicia cerrada con la clase 'collapsed' -->
+    <!-- BARRA LATERAL (SIDEBAR) ÚNICA -->
     <aside id="sidebar" class="sidebar collapsed">
         <ul class="sidebar-menu">
+            <!-- Iconos y enlaces originales del menú principal -->
             <li><a href="#inicio"><i class="ri-home-line"></i> <span class="menu-text">Inicio</span></a></li>
-            <li><a href="#analisis"><i class="ri-file-upload-line"></i> <span class="menu-text">Análisis</span></a></li>
             <li><a href="#problema"><i class="ri-alert-line"></i> <span class="menu-text">Problema</span></a></li>
             <li><a href="#objetivos"><i class="ri-flag-line"></i> <span class="menu-text">Objetivos</span></a></li>
             <li><a href="#equipo"><i class="ri-team-line"></i> <span class="menu-text">Equipo</span></a></li>
+            
+            <!-- Elementos adicionales que solo aparecen al iniciar sesión -->
+            <li class="private-only" style="display: none;"><a href="#dashboard-analisis"><i class="ri-line-chart-line"></i> <span class="menu-text">Análisis Predictivo</span></a></li>
+            <li class="private-only" style="display: none;"><a href="#" id="logout-btn"><i class="ri-logout-box-line"></i> <span class="menu-text">Cerrar Sesión</span></a></li>
         </ul>
     </aside>
 
-    <!-- CONTENIDO PRINCIPAL - Inicia expandido con la clase 'expanded' -->
+    <!-- CONTENIDO PRINCIPAL -->
     <main id="main-content" class="main-content expanded">
 
-        <!-- HERO SECTION -->
+        <!-- HERO SECTION (Público) -->
         <section id="inicio" class="hero">
             <div class="container">
                 <img src="Imagenes/LOGO1.png" alt="Logo TrayectorIA" class="hero-logo">
@@ -56,7 +61,7 @@
             </div>
         </section>
 
-                <!-- CONTEXTO DEL PROBLEMA -->
+        <!-- CONTEXTO DEL PROBLEMA (Público) -->
         <section id="problema" class="section-dark">
             <div class="container">
                 <h2>Contexto del Problema</h2>
@@ -71,15 +76,58 @@
             </div>
         </section>
 
-        <!-- CARGA DE DATOS PARA ANÁLISIS (INTERFAZ VISUAL) -->
-        <section id="analisis" class="analysis-section">
+        <!-- OBJETIVOS DEL PROYECTO (Público) -->
+        <section id="objetivos" class="section-light">
+            <div class="container">
+                <h2>Nuestra Misión es...</h2>
+                <div class="main-objetivo">
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+                </div>
+                <ul class="lista-objetivos">
+                    <h3>Logramos esto mediante...</h3>
+                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
+                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
+                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
+                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
+                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
+                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- EQUIPO DE TRABAJO (Público) -->
+        <section id="equipo" class="section-light">
+            <div class="container">
+                <h2>Nuestros Integrantes</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>INTEGRANTE 1</h3>
+                        <p><strong>Nombre:</strong> Benjamin Torres</p>
+                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 2</h3>
+                        <p><strong>Nombre:</strong> Denilxon Azua</p>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 3</h3>
+                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
+                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE ANÁLISIS PREDICTIVO (PRIVADA - Oculta por defecto) -->
+        <section id="dashboard-analisis" class="analysis-section" style="display: none;">
             <div class="container analysis-container">
                 <div class="analysis-heading">
-                    <span class="analysis-eyebrow">Análisis predictivo</span>
+                    <span class="analysis-eyebrow">Panel Privado</span>
                     <h2>Analiza tus datos estudiantiles</h2>
                     <p>
                         Prepara la información de tu institución utilizando nuestra plantilla
-                        y carga el archivo para iniciar el análisis.
+                        y carga el archivo para iniciar el análisis predictivo.
                     </p>
                 </div>
 
@@ -113,7 +161,6 @@
                     </button>
                     <div id="file-info" class="file-info" hidden>
                         <i class="ri-file-check-line"></i>
-
                         <div class="file-details">
                             <span id="file-name"></span>
                             <span id="file-size"></span>
@@ -129,65 +176,21 @@
             </div>
         </section>
 
-        <!-- OBJETIVOS DEL PROYECTO -->
-        <section id="objetivos" class="section-light">
-            <div class="container">
-                <h2>Nuestra Misión es...</h2>
-                <div class="main-objetivo">
-                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
-                </div>
-                <ul class="lista-objetivos">
-                    <h3>Logramos esto mediante...</h3>
-                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
-                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
-                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
-                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
-                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
-                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- EQUIPO DE TRABAJO -->
-        <section id="equipo" class="section-light">
-            <div class="container">
-                <h2>Nuestros Integrantes</h2>
-                <div class="team-grid">
-                    <div class="team-card">
-                        <h3>INTEGRANTE 1</h3>
-                        <p><strong>Nombre:</strong> Benjamin Torres</p>
-                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
-                    </div>
-                    <div class="team-card">
-                        <h3>INTEGRANTE 2</h3>
-                        <p><strong>Nombre:</strong> Denilxon Azua</p>
-                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
-                    </div>
-                    <div class="team-card">
-                        <h3>INTEGRANTE 3</h3>
-                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
-                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
     </main>
 
     <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
     <div id="toast-container" class="toast-container"></div>
+    
     <!-- VENTANA MODAL DE AUTENTICACIÓN (LOGIN / REGISTRO) -->
     <div id="auth-modal" class="modal-overlay">
         <div class="modal-container">
             <button id="close-modal" class="close-btn"><i class="ri-close-line"></i></button>
             
-            <!-- Pestañas para alternar entre Iniciar Sesión y Registrarse -->
             <div class="modal-tabs">
                 <button class="tab-btn active" data-target="login-form">Iniciar Sesión</button>
                 <button class="tab-btn" data-target="register-form">Registrarse</button>
             </div>
 
-            <!-- FORMULARIO DE INICIO DE SESIÓN -->
             <form id="login-form" class="auth-form active">
                 <h3>Bienvenido de nuevo</h3>
                 <div class="input-group">
@@ -201,7 +204,6 @@
                 <button type="submit" class="submit-btn">Entrar</button>
             </form>
 
-            <!-- FORMULARIO DE REGISTRO -->
             <form id="register-form" class="auth-form">
                 <h3>Crea tu cuenta</h3>
                 <div class="input-group">
@@ -217,9 +219,9 @@
         </div>
     </div>
 
-    <!-- SCRIPTS PARA EL MENÚ Y LA MODAL DE AUTENTICACIÓN -->
-<script src="js/main.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/upload.js"></script>
+    <!-- SCRIPTS -->
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/upload.js"></script>
 </body>
 </html>

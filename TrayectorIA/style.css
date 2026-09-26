@@ -68,6 +68,22 @@ body {
     transform: scale(1.1);    /* Pequeño efecto zoom al pasar el cursor */
 }
 
+.login-icon-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre el ícono y el correo */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: inherit; /* Hereda el color del texto de tu barra */
+}
+
+.user-email-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
 .toggle-btn {
     background: none;
     border: none;
@@ -668,3 +684,4 @@ h2 {
     background-color: #132036;
     transform: scale(1.01);
 }
+
