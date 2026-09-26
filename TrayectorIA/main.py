@@ -1,8 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import pyodbc
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware  # <--- 1. Importa esto
+import pandas as pd
+import io
 
 app = FastAPI()
 
@@ -62,6 +64,9 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
+
+
+
 # ENDPOINT DE REGISTRO
 @app.post("/register")
 def register(user: UserCreate):
@@ -84,6 +89,8 @@ def register(user: UserCreate):
     
     return {"message": "Usuario registrado exitosamente"}
 
+
+
 # ENDPOINT DE INICIO DE SESIÓN
 @app.post("/login")
 def login(user: UserLogin):
@@ -98,3 +105,112 @@ def login(user: UserLogin):
         raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
         
     return {"message": "Inicio de sesión exitoso", "email": user.email}
+
+COLUMNAS_REQUERIDAS = [
+    "Estado civil",
+    "Modo de postulación",
+    "Orden de postulación",
+    "Carrera",
+    "Jornada de asistencia",
+    "Formación previa",
+    "Promedio de formación previa",
+    "Nacionalidad",
+    "Nivel educativo de la madre",
+    "Nivel educativo del padre",
+    "Ocupación de la madre",
+    "Ocupación del padre",
+    "Puntaje de admisión",
+    "Desplazado/a",
+    "Necesidades educativas especiales",
+    "Deudor/a",
+    "Aranceles al día",
+    "Género",
+    "Beneficiario/a de beca",
+    "Edad al momento de la matrícula",
+    "Estudiante internacional",
+
+    "Asignaturas del 1.er semestre (convalidadas)",
+    "Asignaturas del 1.er semestre (inscritas)",
+    "Asignaturas del 1.er semestre (evaluaciones)",
+    "Asignaturas del 1.er semestre (aprobadas)",
+    "Promedio del 1.er semestre",
+    "Asignaturas del 1.er semestre (sin evaluaciones)",
+
+    "Asignaturas del 2.º semestre (convalidadas)",
+    "Asignaturas del 2.º semestre (inscritas)",
+    "Asignaturas del 2.º semestre (evaluaciones)",
+    "Asignaturas del 2.º semestre (aprobadas)",
+    "Promedio del 2.º semestre",
+    "Asignaturas del 2.º semestre (sin evaluaciones)",
+
+    "Tasa de desempleo",
+    "Tasa de inflación",
+    "PIB"
+]
+
+@app.post("/validar-archivo")
+async def validar_archivo(file: UploadFile = File(...)):
+
+    nombre_archivo = file.filename.lower()
+
+    # Comprobar extensión
+    if not nombre_archivo.endswith((".csv", ".xlsx")):
+        raise HTTPException(
+            status_code=400,
+            detail="El archivo debe ser CSV o XLSX."
+        )
+
+    try:
+        contenido = await file.read()
+
+        # Leer CSV
+        if nombre_archivo.endswith(".csv"):
+            df = pd.read_csv(io.BytesIO(contenido))
+
+        # Leer Excel
+        else:
+            df = pd.read_excel(io.BytesIO(contenido))
+
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="No se pudo leer el archivo."
+        )
+
+
+    # Obtener columnas recibidas
+    columnas_recibidas = list(df.columns)
+
+
+    # Buscar columnas faltantes
+    columnas_faltantes = [
+        columna
+        for columna in COLUMNAS_REQUERIDAS
+        if columna not in columnas_recibidas
+    ]
+
+
+    # Buscar columnas adicionales
+    columnas_extra = [
+        columna
+        for columna in columnas_recibidas
+        if columna not in COLUMNAS_REQUERIDAS
+    ]
+
+
+    # Si encontramos problemas
+    if columnas_faltantes or columnas_extra:
+
+        return {
+            "valido": False,
+            "columnas_faltantes": columnas_faltantes,
+            "columnas_extra": columnas_extra
+        }
+
+
+    # Archivo correcto
+    return {
+        "valido": True,
+        "filas": len(df),
+        "columnas": len(df.columns)
+    }

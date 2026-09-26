@@ -43,39 +43,3 @@
         });
     }
 
-    // --- Control de la ventana modal de Autenticación ---
-    const authModal = document.getElementById('auth-modal');
-    const openAuthBtn = document.getElementById('open-auth-modal');
-    const closeAuthBtn = document.getElementById('close-modal');
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const forms = document.querySelectorAll('.auth-form');
-
-    if (openAuthBtn) {
-        openAuthBtn.addEventListener('click', () => {
-            authModal.classList.add('active');
-        });
-    }
-
-    if (closeAuthBtn) {
-        closeAuthBtn.addEventListener('click', () => {
-            authModal.classList.remove('active');
-        });
-    }
-
-    if (authModal) {
-        authModal.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                authModal.classList.remove('active');
-            }
-        });
-    }
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            forms.forEach(f => f.classList.remove('active'));
-
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.target).classList.add('active');
-        });
-    });

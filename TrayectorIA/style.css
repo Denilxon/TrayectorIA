@@ -685,3 +685,92 @@ h2 {
     transform: scale(1.01);
 }
 
+
+
+/* MODAL DE FORMATO REQUERIDO */
+
+.format-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(5px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    pointer-events: none;
+
+    z-index: 2000;
+    transition: opacity 0.3s ease;
+}
+
+.format-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.format-modal-container {
+    width: 90%;
+    max-width: 850px;
+    max-height: 85vh;
+
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+
+    padding: 30px;
+    position: relative;
+
+    overflow-y: auto;
+}
+
+.format-description {
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+.format-rules {
+    background-color: #1e293b;
+    border-left: 4px solid #38bdf8;
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.format-rules ul {
+    margin-left: 20px;
+    color: #cbd5e1;
+}
+
+.format-table-wrapper {
+    overflow-x: auto;
+}
+
+.format-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.format-table th,
+.format-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #334155;
+}
+
+.format-table th {
+    background-color: #1e293b;
+    color: #38bdf8;
+}
+
+.format-table td {
+    color: #cbd5e1;
+}
+
+.format-table tbody tr:hover {
+    background-color: #172033;
+}
+

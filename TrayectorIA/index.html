@@ -123,24 +123,28 @@
         <section id="dashboard-analisis" class="analysis-section" style="display: none;">
             <div class="container analysis-container">
                 <div class="analysis-heading">
-                    <span class="analysis-eyebrow">Panel Privado</span>
+                    <span class="analysis-eyebrow">Modelo Predictivo</span>
                     <h2>Analiza tus datos estudiantiles</h2>
                     <p>
                         Prepara la información de tu institución utilizando nuestra plantilla
                         y carga el archivo para iniciar el análisis predictivo.
                     </p>
                 </div>
-
-                <div class="analysis-actions">
-                    <button type="button" class="template-btn">
+                <div> 
+                    <a href="archivos/Plantilla trayectoria.xlsx"
+                    download
+                    class="template-btn">
                         <i class="ri-download-2-line"></i>
                         <span>Descargar plantilla</span>
-                    </button>
-
+                    </a>                
+                
+                    
                     <button type="button" class="format-btn">
                         <i class="ri-file-list-3-line"></i>
                         <span>Ver formato requerido</span>
+                        
                     </button>
+                    
                 </div>
 
                 <div class="upload-card">
@@ -217,7 +221,50 @@
                 <button type="submit" class="submit-btn">Registrarse</button>
             </form>
         </div>
+    
     </div>
+<!-- MODAL DE FORMATO REQUERIDO -->
+<div id="format-modal" class="format-modal-overlay">
+    <div class="format-modal-container">
+
+        <button id="close-format-modal" class="close-btn">
+            <i class="ri-close-line"></i>
+        </button>
+
+        <h2>Formato requerido</h2>
+
+        <p class="format-description">
+            El archivo debe respetar exactamente las columnas y tipos de datos
+            indicados a continuación. Cada fila debe representar a un estudiante.
+        </p>
+
+        <div class="format-rules">
+            <p><strong>Importante:</strong></p>
+            <ul>
+                <li>No modificar los nombres de las columnas.</li>
+                <li>No eliminar columnas requeridas.</li>
+                <li>No agregar columnas adicionales.</li>
+                <li>Utilizar un estudiante por fila.</li>
+                <li>Respetar el tipo de dato indicado para cada columna.</li>
+            </ul>
+        </div>
+
+        <div class="format-table-wrapper">
+            <table class="format-table">
+                <thead>
+                    <tr>
+                        <th>Columna</th>
+                        <th>Tipo de dato</th>
+                    </tr>
+                </thead>
+
+                <tbody id="format-table-body">
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
 
     <!-- SCRIPTS -->
     <script src="js/main.js"></script>
