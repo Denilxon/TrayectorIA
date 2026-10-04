@@ -26,7 +26,7 @@ def get_db_connection():
     try:
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=localhost\\SQLEXPRESS01;"  # Tu instancia de SQL Server
+            "SERVER=localhost\\SQLEXPRESS;"  # Tu instancia de SQL Server
             "DATABASE=TrayectoriaDB;"        # Tu base de datos en SSMS
             "Trusted_connection=yes;"        # Autenticación integrada de Windows
         )
