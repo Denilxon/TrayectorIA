@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware  # <--- 1. Importa esto
 import pandas as pd
 import io
+from modelo.predictor import procesar_dataframe
 
 app = FastAPI()
 
@@ -213,4 +214,164 @@ async def validar_archivo(file: UploadFile = File(...)):
         "valido": True,
         "filas": len(df),
         "columnas": len(df.columns)
+    }
+
+@app.post("/analizar")
+async def analizar_archivo(file: UploadFile = File(...)):
+
+    nombre_archivo = file.filename.lower()
+
+    # -----------------------------------------
+    # 1. Comprobar extensión
+    # -----------------------------------------
+
+    if not nombre_archivo.endswith((".csv", ".xlsx")):
+        raise HTTPException(
+            status_code=400,
+            detail="El archivo debe ser CSV o XLSX."
+        )
+
+
+    # -----------------------------------------
+    # 2. Leer archivo
+    # -----------------------------------------
+
+    try:
+
+        contenido = await file.read()
+
+        if nombre_archivo.endswith(".csv"):
+            df = pd.read_csv(io.BytesIO(contenido))
+
+        else:
+            df = pd.read_excel(io.BytesIO(contenido))
+
+    except Exception as e:
+
+        print("Error leyendo archivo:", e)
+
+        raise HTTPException(
+            status_code=400,
+            detail="No se pudo leer el archivo."
+        )
+
+
+    # -----------------------------------------
+    # 3. Validar columnas
+    # -----------------------------------------
+
+    columnas_recibidas = list(df.columns)
+
+    columnas_faltantes = [
+        columna
+        for columna in COLUMNAS_REQUERIDAS
+        if columna not in columnas_recibidas
+    ]
+
+    columnas_extra = [
+        columna
+        for columna in columnas_recibidas
+        if columna not in COLUMNAS_REQUERIDAS
+    ]
+
+
+    if columnas_faltantes or columnas_extra:
+
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "mensaje": "El archivo no cumple con el formato requerido.",
+                "columnas_faltantes": columnas_faltantes,
+                "columnas_extra": columnas_extra
+            }
+        )
+
+
+    # -----------------------------------------
+    # 4. Ejecutar modelo
+    # -----------------------------------------
+
+    try:
+
+        resultado = procesar_dataframe(df)
+
+    except ValueError as e:
+
+        # Errores esperables en los datos:
+        # categorías inválidas, nulos, etc.
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    except Exception as e:
+
+        print("Error ejecutando modelo:", e)
+
+        raise HTTPException(
+            status_code=500,
+            detail="Ocurrió un error al ejecutar el modelo."
+        )
+
+
+    # -----------------------------------------
+    # 5. Preparar resumen
+    # -----------------------------------------
+
+    resumen = {
+        "total_estudiantes": len(resultado),
+
+        "riesgo_bajo": int(
+            (resultado["nivel_riesgo"] == "Bajo").sum()
+        ),
+
+        "riesgo_medio": int(
+            (resultado["nivel_riesgo"] == "Medio").sum()
+        ),
+
+        "riesgo_alto": int(
+            (resultado["nivel_riesgo"] == "Alto").sum()
+        ),
+
+        "estudiantes_en_riesgo": int(
+            (resultado["en_riesgo"] == "Sí").sum()
+        )
+    }
+
+
+    # -----------------------------------------
+    # 6. Convertir resultados a JSON
+    # -----------------------------------------
+
+    resultados = resultado[
+        [
+            "probabilidad_desercion",
+            "porcentaje_riesgo",
+            "nivel_riesgo",
+            "en_riesgo",
+            "cluster",
+            "perfil",
+            "factores_perfil",
+            "intervencion_sugerida"
+        ]
+    ].copy()
+
+    # pd.NA no puede enviarse directamente como JSON
+    resultados["cluster"] = (
+        resultados["cluster"]
+        .astype(object)
+        .where(resultados["cluster"].notna(), None)
+    )
+
+
+    # -----------------------------------------
+    # 7. Respuesta
+    # -----------------------------------------
+
+    return {
+        "valido": True,
+        "resumen": resumen,
+        "resultados": resultados.to_dict(
+            orient="records"
+        )
     }
