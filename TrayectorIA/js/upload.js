@@ -88,6 +88,8 @@ uploadCard.addEventListener('drop', (e) => {
 
 // --- BOTÓN ANALIZAR ---
 
+// --- BOTÓN ANALIZAR ---
+
 analyzeBtn.addEventListener('click', async () => {
 
     if (!archivoSeleccionado) {
@@ -98,8 +100,7 @@ analyzeBtn.addEventListener('click', async () => {
         return;
     }
 
-
-    // Crear formulario para enviar el archivo
+    // Crear formulario con el archivo seleccionado
     const formData = new FormData();
 
     formData.append(
@@ -107,46 +108,42 @@ analyzeBtn.addEventListener('click', async () => {
         archivoSeleccionado
     );
 
+    // Evitar múltiples análisis simultáneos
+    analyzeBtn.disabled = true;
+
+    const textoOriginal = analyzeBtn.innerHTML;
+
+    analyzeBtn.innerHTML = 'Analizando...';
 
     try {
 
         const response = await fetch(
-            'http://127.0.0.1:8000/validar-archivo',
+            'http://127.0.0.1:8000/analizar',
             {
                 method: 'POST',
                 body: formData
             }
         );
 
-
         const data = await response.json();
 
 
+        // Error devuelto por FastAPI
         if (!response.ok) {
-            showToast(
-                data.detail || 'No se pudo validar el archivo.',
-                'error'
-            );
-            return;
-        }
 
-
-        // Archivo con columnas incorrectas
-        if (!data.valido) {
-
-            console.log(
-                'Columnas faltantes:',
-                data.columnas_faltantes
+            console.error(
+                'Error del servidor:',
+                data
             );
 
-            console.log(
-                'Columnas adicionales:',
-                data.columnas_extra
-            );
+            let mensajeError = 'No se pudo analizar el archivo.';
 
+            if (typeof data.detail === 'string') {
+                mensajeError = data.detail;
+            }
 
             showToast(
-                'El archivo no cumple con el formato requerido.',
+                mensajeError,
                 'error'
             );
 
@@ -154,31 +151,50 @@ analyzeBtn.addEventListener('click', async () => {
         }
 
 
-        // Archivo correcto
+        // Análisis realizado correctamente
+        console.log(
+            'Resultado completo del análisis:',
+            data
+        );
+
+        console.log(
+            'Resumen:',
+            data.resumen
+        );
+
+        console.log(
+            'Resultados por estudiante:',
+            data.resultados
+        );
+
+
         showToast(
-            `Archivo válido: ${data.filas} estudiantes encontrados.`,
+            `Análisis completado: ${data.resumen.total_estudiantes} estudiantes procesados.`,
             'success'
         );
 
 
-        console.log(
-            'Archivo validado correctamente:',
-            data
-        );
-
+        // Guardamos temporalmente el resultado.
+        // Después el dashboard podrá utilizar esta información.
+        window.resultadoAnalisis = data;
 
     } catch (error) {
 
         console.error(
-            'Error al validar archivo:',
+            'Error al conectar con la API:',
             error
         );
-
 
         showToast(
             'No se pudo conectar con el servidor.',
             'error'
         );
+
+    } finally {
+
+        // Restaurar botón
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = textoOriginal;
     }
 });
 
