@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrayectorIA</title>
+    <!-- Hoja de estilos -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Iconos de RemixIcon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR FIJA -->
+    <header class="top-navbar">
+        <div class="top-nav-container">
+            <!-- Lado izquierdo: Menú y Logo -->
+            <div class="top-left">
+                <button id="sidebar-toggle" class="toggle-btn" aria-label="Menú">
+                    <i class="ri-align-justify"></i>
+                </button>
+                <div class="brand-logo">
+                    <img src="Imagenes/ICO.png" alt="Logo TrayectorIA" class="logo-img">
+                    TrayectorIA
+                </div>
+            </div>
+
+            <!-- Lado derecho: Botón de Usuario / Información de Sesión -->
+            <div class="top-right">
+                <button id="open-auth-modal" class="login-icon-btn" aria-label="Iniciar Sesión / Registrarse">
+                    <i class="ri-user-line"></i>
+                    <span id="user-email-display" class="user-email-text" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside id="sidebar" class="sidebar collapsed">
+        <ul class="sidebar-menu">
+            <li><a href="#inicio"><i class="ri-home-line"></i> <span class="menu-text">Inicio</span></a></li>
+            <li><a href="#problema"><i class="ri-alert-line"></i> <span class="menu-text">Problema</span></a></li>
+            <li><a href="#objetivos"><i class="ri-flag-line"></i> <span class="menu-text">Objetivos</span></a></li>
+            <li><a href="#equipo"><i class="ri-team-line"></i> <span class="menu-text">Equipo</span></a></li>
+            
+            <!-- Elementos privados visibles tras login -->
+            <li class="private-only" style="display: none;"><a href="#dashboard-analisis"><i class="ri-line-chart-line"></i> <span class="menu-text">Análisis Predictivo</span></a></li>
+            <li class="private-only" style="display: none;"><a href="#" id="logout-btn"><i class="ri-logout-box-line"></i> <span class="menu-text">Cerrar Sesión</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main id="main-content" class="main-content expanded">
+
+        <!-- HERO SECTION (Público) -->
+        <section id="inicio" class="hero">
+            <div class="container">
+                <img src="Imagenes/LOGO1.png" alt="Logo TrayectorIA" class="hero-logo">
+                <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
+            </div>
+        </section>
+
+        <!-- CONTEXTO DEL PROBLEMA (Público) -->
+        <section id="problema" class="section-dark">
+            <div class="container">
+                <h2>Contexto del Problema</h2>
+                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
+                
+                <div class="problem-single">
+                    <div class="card-solucion">
+                        <h3>Nuestra Solución</h3>
+                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- OBJETIVOS DEL PROYECTO (Público) -->
+        <section id="objetivos" class="section-light">
+            <div class="container">
+                <h2>Nuestra Misión es...</h2>
+                <div class="main-objetivo">
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+                </div>
+                <ul class="lista-objetivos">
+                    <h3>Logramos esto mediante...</h3>
+                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
+                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
+                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
+                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
+                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
+                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- EQUIPO DE TRABAJO (Público) -->
+        <section id="equipo" class="section-light">
+            <div class="container">
+                <h2>Nuestros Integrantes</h2>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <h3>INTEGRANTE 1</h3>
+                        <p><strong>Nombre:</strong> Benjamin Torres</p>
+                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 2</h3>
+                        <p><strong>Nombre:</strong> Denilxon Azua</p>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                    </div>
+                    <div class="team-card">
+                        <h3>INTEGRANTE 3</h3>
+                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
+                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE ANÁLISIS PREDICTIVO (PRIVADA) -->
+        <section id="dashboard-analisis" class="analysis-section" style="display: none;">
+            <div class="container analysis-container">
+                <div class="analysis-heading">
+                    <span class="analysis-eyebrow">Modelo Predictivo</span>
+                    <h2>Analiza tus datos estudiantiles</h2>
+                    <p>
+                        Prepara la información de tu institución utilizando nuestra plantilla
+                        y carga el archivo para iniciar el análisis predictivo.
+                    </p>
+                </div>
+
+                <div class="analysis-actions"> 
+                    <a href="archivos/Plantilla_Trayectoria_V3_1.xlsx" download class="template-btn">
+                        <i class="ri-download-2-line"></i>
+                        <span>Descargar plantilla</span>
+                    </a>                
+                    
+                    <button type="button" class="format-btn">
+                        <i class="ri-file-list-3-line"></i>
+                        <span>Ver formato requerido</span>
+                    </button>
+                </div>
+
+                <!-- Tarjeta de subida de archivo -->
+                <div class="upload-card">
+                    <div class="upload-icon">
+                        <i class="ri-upload-cloud-2-line"></i>
+                    </div>
+                    <h3>Arrastra tu archivo aquí</h3>
+                    <p>o selecciona un archivo desde tu equipo</p>
+                    
+                    <input type="file" id="file-input" accept=".csv,.xlsx" hidden>
+                    
+                    <button type="button" class="select-file-btn">
+                        <i class="ri-folder-open-line"></i>
+                        Seleccionar archivo
+                    </button>
+                    
+                    <div id="file-info" class="file-info" hidden>
+                        <i class="ri-file-check-line"></i>
+                        <div class="file-details">
+                            <span id="file-name"></span>
+                            <span id="file-size"></span>
+                        </div>
+                        <button type="button" id="remove-file-btn">
+                            Quitar archivo
+                        </button>
+                    </div>
+                    <span class="upload-help">Formatos admitidos: CSV / XLSX</span>
+                </div>
+
+                <button type="button" class="analyze-btn" disabled>
+                    <i class="ri-line-chart-line"></i>
+                    Analizar datos
+                </button>
+
+                <!-- CONTENEDOR DEL DASHBOARD (Oculto al inicio) -->
+                <div id="dashboard-results" style="display: none; margin-top: 40px;">
+                    
+                    <!-- 1. Tarjetas KPI -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <h4>Total Estudiantes</h4>
+                            <span id="kpi-total">0</span>
+                        </div>
+                        <div class="kpi-card risk-low">
+                            <h4>Riesgo Bajo</h4>
+                            <span id="kpi-bajo">0</span>
+                        </div>
+                        <div class="kpi-card risk-mid">
+                            <h4>Riesgo Medio</h4>
+                            <span id="kpi-medio">0</span>
+                        </div>
+                        <div class="kpi-card risk-high">
+                            <h4>Riesgo Alto</h4>
+                            <span id="kpi-alto">0</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. Gráficos Chart.js -->
+                    <div class="charts-grid">
+                        <div class="chart-box">
+                            <h3>Distribución de Riesgo Académico</h3>
+                            <div class="canvas-container">
+                                <canvas id="chart-riesgo"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-box">
+                            <h3>Distribución por Perfiles / Clusters</h3>
+                            <div class="canvas-container">
+                                <canvas id="chart-perfiles"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Tabla Resumen con Buscador y Filtros -->
+                    <div class="table-card">
+                        <div class="table-header-tools">
+                            <h3>Estudiantes Analizados</h3>
+                            <div class="table-filters">
+                                <div class="search-box">
+                                    <i class="ri-search-line"></i>
+                                    <input type="text" id="student-search" placeholder="Buscar por ID o perfil...">
+                                </div>
+                                <select id="filter-risk" class="risk-select">
+                                    <option value="todos">Todos los niveles</option>
+                                    <option value="Alto">Riesgo Alto</option>
+                                    <option value="Medio">Riesgo Medio</option>
+                                    <option value="Bajo">Riesgo Bajo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Estudiante</th>
+                                        <th>% Riesgo</th>
+                                        <th>Nivel de Riesgo</th>
+                                        <th>Perfil / Cluster</th>
+                                        <th style="text-align: center;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-table-body">
+                                    <!-- Generado con JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- FIN DASHBOARD -->
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- NOTIFICACIONES TOAST -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- MODAL DE LOGIN / REGISTRO -->
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button id="close-modal" class="close-btn"><i class="ri-close-line"></i></button>
+            
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-target="login-form">Iniciar Sesión</button>
+                <button class="tab-btn" data-target="register-form">Registrarse</button>
+            </div>
+
+            <form id="login-form" class="auth-form active">
+                <h3>Bienvenido de nuevo</h3>
+                <div class="input-group">
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+
+            <form id="register-form" class="auth-form">
+                <h3>Crea tu cuenta</h3>
+                <div class="input-group">
+                    <label for="register-email">Correo Electrónico</label>
+                    <input type="email" id="register-email" required placeholder="tu@correo.com">
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Contraseña</label>
+                    <input type="password" id="register-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="submit-btn">Registrarse</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE FICHA INDIVIDUAL DE ESTUDIANTE -->
+    <div id="student-modal" class="modal-overlay">
+        <div class="modal-container student-modal-card">
+            <button id="close-student-modal" class="close-btn"><i class="ri-close-line"></i></button>
+            
+            <div class="student-modal-header">
+                <span class="student-modal-eyebrow">Ficha Individual</span>
+                <h3 id="modal-student-id">Estudiante #---</h3>
+                <span id="modal-student-badge" class="badge-risk">---</span>
+            </div>
+
+            <div class="student-modal-body">
+                <div class="detail-group">
+                    <label>Perfil Asignado:</label>
+                    <p id="modal-student-perfil">---</p>
+                </div>
+
+                <div class="detail-group">
+                    <label>Probabilidad de Deserción:</label>
+                    <p id="modal-student-prob">---</p>
+                </div>
+
+                <div class="detail-group">
+                    <label><i class="ri-alert-line"></i> Factores de Alerta:</label>
+                    <div id="modal-student-alertas" class="detail-box alert-box">---</div>
+                </div>
+
+                <div class="detail-group">
+                    <label><i class="ri-lightbulb-line"></i> Intervención Sugerida:</label>
+                    <div id="modal-student-intervencion" class="detail-box action-box">---</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE FORMATO REQUERIDO -->
+    <div id="format-modal" class="format-modal-overlay">
+        <div class="format-modal-container">
+            <button id="close-format-modal" class="close-btn">
+                <i class="ri-close-line"></i>
+            </button>
+
+            <h2>Formato requerido</h2>
+            <p class="format-description">
+                El archivo debe respetar exactamente las columnas y tipos de datos
+                indicados a continuación. Cada fila debe representar a un estudiante.
+            </p>
+
+            <div class="format-rules">
+                <p><strong>Importante:</strong></p>
+                <ul>
+                    <li>No modificar los nombres de las columnas.</li>
+                    <li>No eliminar columnas requeridas.</li>
+                    <li>No agregar columnas adicionales.</li>
+                    <li>Utilizar un estudiante por fila.</li>
+                    <li>Respetar el tipo de dato indicado para cada columna.</li>
+                </ul>
+            </div>
+
+            <div class="format-table-wrapper">
+                <table class="format-table">
+                    <thead>
+                        <tr>
+                            <th>Columna</th>
+                            <th>Tipo de dato</th>
+                        </tr>
+                    </thead>
+                    <tbody id="format-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS EN ORDEN CORRECTO -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/upload.js"></script>
+</body>
+</html>
