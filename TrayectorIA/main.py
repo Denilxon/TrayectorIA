@@ -108,6 +108,7 @@ def login(user: UserLogin):
     return {"message": "Inicio de sesión exitoso", "email": user.email}
 
 COLUMNAS_REQUERIDAS = [
+    "ID estudiante",
     "Estado civil",
     "Modo de postulación",
     "Orden de postulación",
@@ -166,11 +167,18 @@ async def validar_archivo(file: UploadFile = File(...)):
 
         # Leer CSV
         if nombre_archivo.endswith(".csv"):
-            df = pd.read_csv(io.BytesIO(contenido))
+            df = pd.read_csv(
+                io.BytesIO(contenido),
+                dtype={"ID estudiante": "string"},
+                encoding="utf-8-sig"
+            )
 
         # Leer Excel
         else:
-            df = pd.read_excel(io.BytesIO(contenido))
+            df = pd.read_excel(
+                io.BytesIO(contenido),
+                dtype={"ID estudiante": "string"}
+            )
 
     except Exception:
         raise HTTPException(
@@ -345,6 +353,7 @@ async def analizar_archivo(file: UploadFile = File(...)):
 
     resultados = resultado[
         [
+            "ID estudiante",
             "probabilidad_desercion",
             "porcentaje_riesgo",
             "nivel_riesgo",
@@ -352,7 +361,9 @@ async def analizar_archivo(file: UploadFile = File(...)):
             "cluster",
             "perfil",
             "factores_perfil",
-            "intervencion_sugerida"
+            "intervencion_sugerida",
+            "alertas_individuales",
+            "recomendaciones_individuales"
         ]
     ].copy()
 

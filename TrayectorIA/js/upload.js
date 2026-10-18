@@ -8,6 +8,7 @@ const uploadCard = document.querySelector('.upload-card');
 const fileInfo = document.getElementById('file-info');
 const fileName = document.getElementById('file-name');
 const fileSize = document.getElementById('file-size');
+const removeFileBtn = document.getElementById('remove-file-btn');
 
 const formatBtn = document.querySelector('.format-btn');
 const formatModal = document.getElementById('format-modal');
@@ -19,7 +20,13 @@ let archivoSeleccionado = null;
 // --- PROCESAR Y VALIDAR ARCHIVO ---
 function procesarArchivo(file) {
 
+    // Limpiar cualquier selección anterior
+    archivoSeleccionado = null;
+    fileInfo.hidden = true;
+    analyzeBtn.disabled = true;
+
     if (!file) {
+        fileInput.value = '';
         return;
     }
 
@@ -29,15 +36,11 @@ function procesarArchivo(file) {
     // Validar formato
     if (extension !== 'csv' && extension !== 'xlsx') {
         showToast('El archivo debe ser CSV o XLSX.', 'error');
-
         fileInput.value = '';
-        fileInfo.hidden = true;
-        analyzeBtn.disabled = true;
-
         return;
     }
 
-// Guardar el archivo válido seleccionado
+    // Guardar únicamente el nuevo archivo
     archivoSeleccionado = file;
 
     // Mostrar información del archivo
@@ -47,6 +50,9 @@ function procesarArchivo(file) {
     fileInfo.hidden = false;
     analyzeBtn.disabled = false;
 
+    // Descartar resultados de análisis anteriores
+    window.resultadoAnalisis = null;
+
     showToast(`Archivo seleccionado: ${file.name}`, 'success');
 }
 
@@ -54,6 +60,7 @@ function procesarArchivo(file) {
 // --- SELECCIÓN MEDIANTE BOTÓN ---
 
 selectFileBtn.addEventListener('click', () => {
+    fileInput.value = '';
     fileInput.click();
 });
 
@@ -65,6 +72,21 @@ fileInput.addEventListener('change', () => {
 
 
 // --- ARRASTRAR Y SOLTAR ---
+// --- QUITAR ARCHIVO SELECCIONADO ---
+
+removeFileBtn.addEventListener('click', () => {
+    archivoSeleccionado = null;
+    fileInput.value = '';
+
+    fileName.textContent = '';
+    fileSize.textContent = '';
+    fileInfo.hidden = true;
+
+    analyzeBtn.disabled = true;
+    window.resultadoAnalisis = null;
+
+    showToast('Archivo eliminado de la selección.', 'success');
+});
 
 uploadCard.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -220,6 +242,7 @@ formatModal.addEventListener('click', (e) => {
 const formatTableBody = document.getElementById('format-table-body');
 
 const columnasRequeridas = [
+    { nombre: 'ID estudiante', tipo: 'string' },
     { nombre: 'Estado civil', tipo: 'string' },
     { nombre: 'Modo de postulación', tipo: 'string' },
     { nombre: 'Orden de postulación', tipo: 'integer' },
