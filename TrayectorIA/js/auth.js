@@ -14,330 +14,261 @@ document.addEventListener('DOMContentLoaded', () => {
     const userEmailDisplay = document.getElementById('user-email-display');
     const logoutBtn = document.getElementById('logout-btn');
 
+    // Dominios autorizados
+    const DOMINIOS_PERMITIDOS = [
+        'gmail.com',
+        'outlook.com',
+        'outlook.cl',
+        'hotmail.com',
+        'yahoo.com',
+        'icloud.com',
+        'duocuc.cl',
+        'duoc.cl',
+        'profesor.duoc.cl'
+    ];
+
+    function esCorreoValido(email) {
+        const partes = email.trim().toLowerCase().split('@');
+        if (partes.length !== 2) return false;
+        return DOMINIOS_PERMITIDOS.includes(partes[1]);
+    }
 
     // =========================================================
-    // MOSTRAR INTERFAZ PRIVADA DESPUÉS DEL LOGIN
+    // MOSTRAR U OCULTAR INTERFAZ PRIVADA
     // =========================================================
 
     function showPrivateUI(email) {
-
-        // Mostrar opciones privadas del menú lateral
+        // Mostrar opciones privadas del menú lateral (Análisis Predictivo, Cerrar Sesión)
         const privateItems = document.querySelectorAll('.private-only');
-
         privateItems.forEach(item => {
             item.style.display = 'block';
         });
 
-
         // Mostrar sección de análisis predictivo
-        const dashboardAnalisis =
-            document.getElementById('dashboard-analisis');
-
+        const dashboardAnalisis = document.getElementById('dashboard-analisis');
         if (dashboardAnalisis) {
             dashboardAnalisis.style.display = 'block';
         }
 
-
-        // Mostrar correo del usuario en la barra superior
+        // Mostrar correo del usuario en la barra superior fija
         if (userEmailDisplay) {
             userEmailDisplay.textContent = email;
             userEmailDisplay.style.display = 'inline';
         }
     }
 
+    function hidePrivateUI() {
+        // Ocultar opciones privadas
+        const privateItems = document.querySelectorAll('.private-only');
+        privateItems.forEach(item => {
+            item.style.display = 'none';
+        });
+
+        // Ocultar dashboard
+        const dashboardAnalisis = document.getElementById('dashboard-analisis');
+        if (dashboardAnalisis) {
+            dashboardAnalisis.style.display = 'none';
+        }
+
+        // Limpiar y ocultar correo en la barra
+        if (userEmailDisplay) {
+            userEmailDisplay.textContent = '';
+            userEmailDisplay.style.display = 'none';
+        }
+    }
+
+    // =========================================================
+    // PERSISTENCIA: COMPROBAR SESIÓN GUARDADA AL CARGAR LA PÁGINA
+    // =========================================================
+    const usuarioGuardado = localStorage.getItem('trayectoria_user');
+    if (usuarioGuardado) {
+        showPrivateUI(usuarioGuardado);
+    }
 
     // =========================================================
     // 1. ABRIR Y CERRAR MODAL
     // =========================================================
 
     if (openAuthModalBtn && authModal) {
-
         openAuthModalBtn.addEventListener('click', (e) => {
-
-            // Si ya hay un usuario mostrado, no abrir nuevamente el login
-            if (userEmailDisplay.style.display === 'inline') {
+            // Si el usuario ya está conectado, no abrir el modal de login
+            if (localStorage.getItem('trayectoria_user')) {
                 return;
             }
-
             e.preventDefault();
             authModal.classList.add('active');
         });
     }
 
-
     if (closeModalBtn && authModal) {
-
         closeModalBtn.addEventListener('click', () => {
             authModal.classList.remove('active');
         });
     }
 
-
-    // Cerrar haciendo clic fuera del modal
     if (authModal) {
-
         authModal.addEventListener('click', (e) => {
-
             if (e.target === authModal) {
                 authModal.classList.remove('active');
             }
         });
     }
 
-
     // =========================================================
     // 2. PESTAÑAS LOGIN / REGISTRO
     // =========================================================
 
     tabBtns.forEach(btn => {
-
         btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            authForms.forEach(form => form.classList.remove('active'));
 
-            // Quitar estado activo
-            tabBtns.forEach(b => {
-                b.classList.remove('active');
-            });
-
-            authForms.forEach(form => {
-                form.classList.remove('active');
-            });
-
-
-            // Activar pestaña seleccionada
             btn.classList.add('active');
-
-            const targetForm =
-                document.getElementById(btn.getAttribute('data-target'));
-
+            const targetForm = document.getElementById(btn.getAttribute('data-target'));
             if (targetForm) {
                 targetForm.classList.add('active');
             }
         });
     });
 
-
     // =========================================================
     // 3. REGISTRO
     // =========================================================
 
     if (registerForm) {
-
         registerForm.addEventListener('submit', async (e) => {
-
             e.preventDefault();
 
-            const email =
-                document.getElementById('register-email').value;
+            const emailInput = document.getElementById('register-email');
+            const passwordInput = document.getElementById('register-password');
 
-            const password =
-                document.getElementById('register-password').value;
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
 
+            if (!esCorreoValido(email)) {
+                if (typeof showToast === 'function') {
+                    showToast('Ingresa un correo con dominio válido (ej: @gmail.com, @duocuc.cl).', 'error');
+                }
+                return;
+            }
 
             try {
-
-                const response = await fetch(
-                    'http://127.0.0.1:8000/register',
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
-                );
-
+                const response = await fetch('http://127.0.0.1:8000/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
                 const data = await response.json();
 
-
-                // Si el registro falla
                 if (!response.ok) {
-
                     if (typeof showToast === 'function') {
-                        showToast(
-                            data.detail || 'Error en el registro.',
-                            'error'
-                        );
+                        showToast(data.detail || 'Error en el registro.', 'error');
                     }
-
                     return;
                 }
 
-
-                // Registro exitoso
                 if (typeof showToast === 'function') {
-                    showToast(
-                        '¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.',
-                        'success'
-                    );
+                    showToast('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.', 'success');
                 }
 
-
-                // Limpiar formulario
                 registerForm.reset();
 
+                // Cambiar a la pestaña de login
+                tabBtns.forEach(btn => btn.classList.remove('active'));
+                authForms.forEach(form => form.classList.remove('active'));
 
-                // Volver automáticamente a la pestaña de login
-                tabBtns.forEach(btn => {
-                    btn.classList.remove('active');
-                });
-
-                authForms.forEach(form => {
-                    form.classList.remove('active');
-                });
-
-
-                const loginTab =
-                    document.querySelector(
-                        '.tab-btn[data-target="login-form"]'
-                    );
-
-                if (loginTab) {
-                    loginTab.classList.add('active');
-                }
-
-                if (loginForm) {
-                    loginForm.classList.add('active');
-                }
-
+                const loginTab = document.querySelector('.tab-btn[data-target="login-form"]');
+                if (loginTab) loginTab.classList.add('active');
+                if (loginForm) loginForm.classList.add('active');
 
             } catch (error) {
-
-                console.error(
-                    'Error al conectar con el servidor:',
-                    error
-                );
-
-
+                console.error('Error al conectar con el servidor:', error);
                 if (typeof showToast === 'function') {
-                    showToast(
-                        'No se pudo conectar con el servidor backend.',
-                        'error'
-                    );
+                    showToast('No se pudo conectar con el servidor backend.', 'error');
                 }
             }
         });
     }
-
 
     // =========================================================
     // 4. INICIO DE SESIÓN
     // =========================================================
 
     if (loginForm) {
-
         loginForm.addEventListener('submit', async (e) => {
-
             e.preventDefault();
 
+            const emailInput = document.getElementById('login-email');
+            const passwordInput = document.getElementById('login-password');
 
-            const email =
-                document.getElementById('login-email').value;
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
 
-            const password =
-                document.getElementById('login-password').value;
-
+            if (!esCorreoValido(email)) {
+                if (typeof showToast === 'function') {
+                    showToast('El dominio del correo no es válido.', 'error');
+                }
+                return;
+            }
 
             try {
-
-                // Enviar credenciales al backend
-                const response = await fetch(
-                    'http://127.0.0.1:8000/login',
-                    {
-                        method: 'POST',
-
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
-                );
-
+                const response = await fetch('http://127.0.0.1:8000/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
                 const data = await response.json();
 
-
-                // Credenciales rechazadas por FastAPI
                 if (!response.ok) {
-
                     if (typeof showToast === 'function') {
-                        showToast(
-                            data.detail ||
-                            'Correo o contraseña incorrectos.',
-                            'error'
-                        );
+                        showToast(data.detail || 'Correo o contraseña incorrectos.', 'error');
                     }
-
                     return;
                 }
 
+                // --- PERSISTENCIA: Guardar sesión en el almacenamiento local ---
+                localStorage.setItem('trayectoria_user', email);
 
-                // =================================================
-                // LOGIN CORRECTO
-                // Solo llegamos aquí si FastAPI aceptó las credenciales
-                // =================================================
-
+                // Mostrar interfaz privada y cerrar modal
                 showPrivateUI(email);
-
-
-                // Cerrar ventana de login
                 authModal.classList.remove('active');
-
-
-                // Limpiar formulario
                 loginForm.reset();
 
-
                 if (typeof showToast === 'function') {
-                    showToast(
-                        'Sesión iniciada correctamente.',
-                        'success'
-                    );
+                    showToast('Sesión iniciada correctamente.', 'success');
                 }
 
-
             } catch (error) {
-
-                console.error(
-                    'Error al conectar con el servidor:',
-                    error
-                );
-
-
-                // Si FastAPI está apagado, llegamos aquí
+                console.error('Error al conectar con el servidor:', error);
                 if (typeof showToast === 'function') {
-                    showToast(
-                        'No se pudo conectar con el servidor. Inténtalo nuevamente.',
-                        'error'
-                    );
+                    showToast('No se pudo conectar con el servidor. Inténtalo nuevamente.', 'error');
                 }
             }
         });
     }
-
 
     // =========================================================
     // 5. CERRAR SESIÓN
     // =========================================================
 
     if (logoutBtn) {
-
         logoutBtn.addEventListener('click', (e) => {
-
             e.preventDefault();
 
-            // Por ahora recargamos la página para limpiar
-            // el estado visual de la sesión.
-            window.location.reload();
+            // --- PERSISTENCIA: Eliminar sesión de localStorage ---
+            localStorage.removeItem('trayectoria_user');
+
+            // Ocultar elementos privados
+            hidePrivateUI();
+
+            if (typeof showToast === 'function') {
+                showToast('Has cerrado sesión correctamente.', 'success');
+            }
+
+            // Redirigir suavemente al inicio público
+            window.location.hash = '#inicio';
         });
     }
 
