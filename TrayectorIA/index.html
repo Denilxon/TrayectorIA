@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="style.css">
     <!-- Iconos de RemixIcon -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Librería html2pdf para exportar contenedores a PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -64,12 +66,12 @@
         <section id="problema" class="section-dark">
             <div class="container">
                 <h2>Contexto del Problema</h2>
-                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
+                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año)[cite: 2]. Los sistemas preventivos actuales tienen un amplio margen de mejora[cite: 2].</p>
                 
                 <div class="problem-single">
                     <div class="card-solucion">
                         <h3>Nuestra Solución</h3>
-                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
+                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia[cite: 2].</p>
                     </div>
                 </div>
             </div>
@@ -80,16 +82,16 @@
             <div class="container">
                 <h2>Nuestra Misión es...</h2>
                 <div class="main-objetivo">
-                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción[cite: 3].</p>
                 </div>
                 <ul class="lista-objetivos">
                     <h3>Logramos esto mediante...</h3>
-                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
-                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
-                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
-                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
-                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
-                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
+                    <li>Preparar un conjunto de datos robusto para su posterior análisis[cite: 3].</li>
+                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos[cite: 3].</li>
+                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento[cite: 3].</li>
+                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción[cite: 3].</li>
+                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos[cite: 3].</li>
+                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución[cite: 3].</li>
                 </ul>
             </div>
         </section>
@@ -102,17 +104,17 @@
                     <div class="team-card">
                         <h3>INTEGRANTE 1</h3>
                         <p><strong>Nombre:</strong> Benjamin Torres</p>
-                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend</p>
+                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend[cite: 3]</p>
                     </div>
                     <div class="team-card">
                         <h3>INTEGRANTE 2</h3>
                         <p><strong>Nombre:</strong> Denilxon Azua</p>
-                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist</p>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist[cite: 3]</p>
                     </div>
                     <div class="team-card">
                         <h3>INTEGRANTE 3</h3>
                         <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
-                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation</p>
+                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation[cite: 3]</p>
                     </div>
                 </div>
             </div>
@@ -177,6 +179,48 @@
 
                 <!-- CONTENEDOR DEL DASHBOARD (Oculto al inicio) -->
                 <div id="dashboard-results" style="display: none; margin-top: 40px;">
+
+                    <!-- 3. Tabla Resumen con Buscador, Filtros y Botón de PDF -->
+                    <div class="table-card">
+                        <div class="table-header-tools">
+                            <h3>Estudiantes Analizados</h3>
+                            
+                            <!-- Botón para descargar el PDF -->
+                            <button type="button" id="download-pdf-btn" class="download-pdf-btn">
+                                <i class="ri-file-pdf-line"></i> Descargar PDF
+                            </button>
+
+                            <div class="table-filters">
+                                <div class="search-box">
+                                    <i class="ri-search-line"></i>
+                                    <input type="text" id="student-search" placeholder="Buscar por ID o perfil...">
+                                </div>
+                                <select id="filter-risk" class="risk-select">
+                                    <option value="todos">Todos los niveles</option>
+                                    <option value="Alto">Riesgo Alto</option>
+                                    <option value="Medio">Riesgo Medio</option>
+                                    <option value="Bajo">Riesgo Bajo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID Estudiante</th>
+                                        <th>% Riesgo</th>
+                                        <th>Nivel de Riesgo</th>
+                                        <th>Perfil / Cluster</th>
+                                        <th style="text-align: center;">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboard-table-body">
+                                    <!-- Generado con JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     
                     <!-- 1. Tarjetas KPI -->
                     <div class="kpi-grid">
@@ -211,42 +255,6 @@
                             <div class="canvas-container">
                                 <canvas id="chart-perfiles"></canvas>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 3. Tabla Resumen con Buscador y Filtros -->
-                    <div class="table-card">
-                        <div class="table-header-tools">
-                            <h3>Estudiantes Analizados</h3>
-                            <div class="table-filters">
-                                <div class="search-box">
-                                    <i class="ri-search-line"></i>
-                                    <input type="text" id="student-search" placeholder="Buscar por ID o perfil...">
-                                </div>
-                                <select id="filter-risk" class="risk-select">
-                                    <option value="todos">Todos los niveles</option>
-                                    <option value="Alto">Riesgo Alto</option>
-                                    <option value="Medio">Riesgo Medio</option>
-                                    <option value="Bajo">Riesgo Bajo</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="dashboard-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID Estudiante</th>
-                                        <th>% Riesgo</th>
-                                        <th>Nivel de Riesgo</th>
-                                        <th>Perfil / Cluster</th>
-                                        <th style="text-align: center;">Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dashboard-table-body">
-                                    <!-- Generado con JS -->
-                                </tbody>
-                            </table>
                         </div>
                     </div>
 

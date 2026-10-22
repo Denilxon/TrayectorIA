@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeStudentModalBtn = document.getElementById('close-student-modal');
     const searchInput = document.getElementById('student-search');
     const filterRiskSelect = document.getElementById('filter-risk');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
     let archivoSeleccionado = null;
     let listaEstudiantesGlobal = [];
@@ -285,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 4. Gráfico Barras Horizontales de Perfiles / Clusters (Optimizado)
+        // 4. Gráfico Barras Horizontales de Perfiles / Clusters
         const canvasPerfiles = document.getElementById('chart-perfiles');
         if (canvasPerfiles) {
             const conteoPerfiles = {};
@@ -308,22 +309,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // <-- Transforma las barras a horizontales para dar espacio al texto
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
                         x: { 
-                            ticks: { 
-                                color: '#94a3b8',
-                                precision: 0 // Solo números enteros
-                            }, 
+                            ticks: { color: '#94a3b8', precision: 0 }, 
                             grid: { color: '#1e293b' } 
                         },
                         y: { 
                             ticks: { 
                                 color: '#cbd5e1',
                                 font: { size: 11 },
-                                // Trunca o divide el texto si es muy largo
                                 callback: function(value) {
                                     const label = this.getLabelForValue(value);
                                     if (label.length > 28) {
@@ -339,10 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         legend: { display: false },
                         tooltip: {
                             callbacks: {
-                                // En el tooltip al pasar el cursor sí muestra el nombre completo sin recortar
-                                title: function(context) {
-                                    return context[0].label;
-                                }
+                                title: function(context) { return context[0].label; }
                             }
                         }
                     }
@@ -390,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Renderizar métricas y gráficos en el dashboard
                 renderizarDashboard(data);
                 notify(`¡Análisis completado! Se procesaron ${data.resumen.total_estudiantes} estudiantes.`, 'success');
 
@@ -401,6 +394,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 analyzeBtn.disabled = false;
                 analyzeBtn.innerHTML = originalHTML;
             }
+        });
+    }
+
+    // --- LÓGICA DE DESCARGA DE PDF DEL DASHBOARD ---
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', () => {
+            const element = document.getElementById('dashboard-results');
+            
+            if (!element) {
+                notify('No hay datos en el dashboard para exportar.', 'error');
+                return;
+            }
+
+            const options = {
+                margin:       10,
+                filename:     'Reporte_Analisis_TrayectorIA.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            notify('Generando PDF del dashboard, por favor espera...', 'info');
+
+            html2pdf().from(element).set(options).save().then(() => {
+                notify('¡PDF descargado exitosamente!', 'success');
+            }).catch(err => {
+                console.error('Error generando PDF:', err);
+                notify('Ocurrió un error al generar el archivo PDF.', 'error');
+            });
         });
     }
 
