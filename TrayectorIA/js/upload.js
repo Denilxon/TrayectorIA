@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeStudentModalBtn = document.getElementById('close-student-modal');
     const searchInput = document.getElementById('student-search');
     const filterRiskSelect = document.getElementById('filter-risk');
+    const filterCareerSelect = document.getElementById('filter-career');
+    const filterGenderSelect = document.getElementById('filter-gender');
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
     let archivoSeleccionado = null;
@@ -223,16 +225,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function aplicarFiltros() {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const nivelSeleccionado = filterRiskSelect ? filterRiskSelect.value : 'todos';
+        const carreraSeleccionada = filterCareerSelect ? filterCareerSelect.value : 'todos';
+        const generoSeleccionado = filterGenderSelect ? filterGenderSelect.value : 'todos';
 
         const filtrados = listaEstudiantesGlobal.filter(est => {
             const id = String(est['ID estudiante'] || '').toLowerCase();
             const perfil = String(est.perfil || '').toLowerCase();
             const nivel = est.nivel_riesgo || '';
+            const carrera = String(est['Carrera'] ?? '');
 
             const coincideTexto = id.includes(query) || perfil.includes(query);
-            const coincideNivel = (nivelSeleccionado === 'todos') || (nivel === nivelSeleccionado);
+            const coincideNivel = nivelSeleccionado === 'todos' || nivel === nivelSeleccionado;
+            const coincideCarrera = carreraSeleccionada === 'todos' || carrera === carreraSeleccionada;
+            const coincideGenero = generoSeleccionado === 'todos' ||
+                String(est['Género'] ?? '') === generoSeleccionado;
 
-            return coincideTexto && coincideNivel;
+            return coincideTexto && coincideNivel && coincideCarrera && coincideGenero;
         });
 
         pintarTablaEstudiantes(filtrados);
@@ -240,11 +248,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (searchInput) searchInput.addEventListener('input', aplicarFiltros);
     if (filterRiskSelect) filterRiskSelect.addEventListener('change', aplicarFiltros);
+    if (filterCareerSelect) {
+    filterCareerSelect.addEventListener('change', aplicarFiltros);
+    if (filterGenderSelect) {
+    filterGenderSelect.addEventListener('change', aplicarFiltros);
+}
+}
 
     // --- RENDERIZADO DEL DASHBOARD ---
     function renderizarDashboard(data) {
         const { resumen, resultados } = data;
         listaEstudiantesGlobal = resultados || [];
+
+        console.log("Selector carrera:", filterCareerSelect);
+        console.log("Primer estudiante:", listaEstudiantesGlobal[0]);
+        console.log("Total estudiantes:", listaEstudiantesGlobal.length);
+
+        // Cargar las carreras disponibles en el archivo analizado
+        if (filterCareerSelect) {
+            const carreras = [...new Set(
+                listaEstudiantesGlobal
+                    .map(est => est['Carrera'])
+                    .filter(carrera => carrera !== null && carrera !== undefined && carrera !== '')
+                    .map(carrera => String(carrera))
+            )].sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
+
+            filterCareerSelect.innerHTML = '<option value="todos">Todas las carreras</option>';
+
+            carreras.forEach(carrera => {
+                const option = document.createElement('option');
+                option.value = carrera;
+                option.textContent = carrera;
+                filterCareerSelect.appendChild(option);
+            });
+
+            filterCareerSelect.value = 'todos';
+        }
+
+        if (filterGenderSelect) {
+            const generos = [...new Set(
+                listaEstudiantesGlobal
+                    .map(est => est['Género'])
+                    .filter(valor => valor !== null && valor !== undefined && valor !== '')
+                    .map(String)
+            )].sort();
+
+            filterGenderSelect.innerHTML = '<option value="todos">Todos los géneros</option>';
+
+            generos.forEach(genero => {
+                const option = document.createElement('option');
+                option.value = genero;
+                option.textContent = genero;
+                filterGenderSelect.appendChild(option);
+            });
+
+            filterGenderSelect.value = 'todos';
+        }
 
         // 1. Mostrar contenedor principal
         const dashboardSection = document.getElementById('dashboard-results');
@@ -411,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 margin:       10,
                 filename:     'Reporte_Analisis_TrayectorIA.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                html2canvas:  { scale: 1, useCORS: true, logging: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
 

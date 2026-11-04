@@ -354,6 +354,26 @@ async def analizar_archivo(file: UploadFile = File(...)):
 
         resultado = procesar_dataframe(df)
 
+        print("PRUEBA FILTROS: se está ejecutando el código actualizado")
+
+        # Recuperar datos originales para los filtros del dashboard
+        columnas_filtros = [
+            "Carrera",
+            "Género",
+            "Beneficiario/a de beca",
+            "Edad al momento de la matrícula",
+            "Promedio del 1.er semestre",
+            "Promedio del 2.º semestre"
+        ]
+
+        for columna in columnas_filtros:
+            resultado[columna] = df[columna].to_numpy()
+
+        # Comprobar que las columnas se agregaron correctamente
+        print("COLUMNAS DEL RESULTADO:", resultado.columns.tolist())
+        print("CARRERA DEL PRIMER ESTUDIANTE:", resultado["Carrera"].iloc[0])
+        
+
     except ValueError as e:
 
         # Errores esperables en los datos:
@@ -403,20 +423,26 @@ async def analizar_archivo(file: UploadFile = File(...)):
     # -----------------------------------------
 
     resultados = resultado[
-        [
-            "ID estudiante",
-            "probabilidad_desercion",
-            "porcentaje_riesgo",
-            "nivel_riesgo",
-            "en_riesgo",
-            "cluster",
-            "perfil",
-            "factores_perfil",
-            "intervencion_sugerida",
-            "alertas_individuales",
-            "recomendaciones_individuales"
-        ]
-    ].copy()
+    [
+        "ID estudiante",
+        "Carrera",
+        "Género",
+        "Beneficiario/a de beca",
+        "Edad al momento de la matrícula",
+        "Promedio del 1.er semestre",
+        "Promedio del 2.º semestre",
+        "probabilidad_desercion",
+        "porcentaje_riesgo",
+        "nivel_riesgo",
+        "en_riesgo",
+        "cluster",
+        "perfil",
+        "factores_perfil",
+        "intervencion_sugerida",
+        "alertas_individuales",
+        "recomendaciones_individuales"
+    ]
+].copy()
 
     # pd.NA no puede enviarse directamente como JSON
     resultados["cluster"] = (

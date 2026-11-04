@@ -1,0 +1,29 @@
+{
+  "scikit_learn": "1.9.1",
+  "imbalanced_learn": "0.14.2",
+  "narwhals": "2.21.2",
+  "version_trayectoria": "3.1",
+  "migracion_sklearn": "1.8.0 -> 1.9.1 (REENTRENADO)",
+  "modelo_riesgo_reentrenado": true,
+  "kmeans_reentrenado": true,
+  "se_requiere_id_estudiante": true,
+  "reglas_alertas": "v3.1-prototipo-Portugal-0a20",
+  "numpy": "2.3.5",
+  "scipy": "1.17.0",
+  "pandas": "2.2.3",
+  "python": "3.13.16",
+  "origen": "data.csv UCI Portugal ID 697",
+  "n_entrenamiento": 3539,
+  "n_test": 885,
+  "resultado_f1": 0.8152173913043478,
+  "resultado_roc_auc": 0.9297971690375197,
+  "silhouette": {
+    "2": 0.21005149946504242,
+    "3": 0.21942208997151375,
+    "4": 0.1449822482848874,
+    "5": 0.1574268594402989,
+    "6": 0.16271481293323087,
+    "7": 0.16743430427395095
+  },
+  "archivo_sha256": "d4b93f804ef03ce0e0e9869b1ce4fedd59abacdc4ddeab0cf076ebeae4a8abf6"
+}
