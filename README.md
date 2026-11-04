@@ -23,7 +23,16 @@ Juan Rebolledo --> Data Engineer / QA Continuo & Proyect Documentation
 Metodología de Trabajo del equipo: Tradicional Hibrida
 
 Instrucciones de ejecución Local:
+winget install Python.python.3.12 
+
+py -3.12 -m venv .venv
+
+.\.venv\Scripts\Activate.ps1
+
+python -m pip install -r requirements.txt
+
 py -m uvicorn main:app --reload
 
-Instalaciones necesarias: py -m pip install fastapi uvicorn pydantic "passlib[bcrypt]" pyodbc
-python -m pip install "bcrypt<4.0.0"
+
+Nombre de la base de datos: TrayectoriaDB
+localhost\SQLEXPRESS
