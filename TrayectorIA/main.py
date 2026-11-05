@@ -1,47 +1,47 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
-import re
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 import pyodbc
 from passlib.context import CryptContext
-from fastapi.middleware.cors import CORSMiddleware  # <--- 1. Importa esto
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
+import json
 from modelo.predictor import procesar_dataframe
 
 app = FastAPI()
 
-# --- 2. AGREGA ESTE BLOQUE DE CORS OBLIGATORIAMENTE ---
+# --- CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite peticiones desde cualquier origen (como Live Server)
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos los métodos (POST, GET, etc.)
-    allow_headers=["*"],  # Permite todos los encabezados
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-
-# Configuración para encriptar contraseñas de forma segura con bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Función para conectar a tu base de datos en SQL Server Express
+# --- CONEXIÓN A SQL SERVER ---
 def get_db_connection():
     try:
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=localhost\\SQLEXPRESS01;"  # Tu instancia de SQL Server
-            "DATABASE=TrayectoriaDB;"        # Tu base de datos en SSMS
-            "Trusted_connection=yes;"        # Autenticación integrada de Windows
+            "SERVER=localhost\\SQLEXPRESS01;"
+            "DATABASE=TrayectoriaDB;"
+            "Trusted_connection=yes;"
         )
         return conn
     except Exception as e:
         print(f"Error al conectar con SQL Server: {e}")
         raise HTTPException(status_code=500, detail="Error de conexión con la base de datos")
 
-# Función para inicializar la tabla de usuarios automáticamente si no existe
+# --- INICIALIZACIÓN DE TABLAS ---
 def init_db():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # 1. Tabla de Usuarios
         cursor.execute("""
             IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' and xtype='U')
             CREATE TABLE users (
@@ -50,14 +50,31 @@ def init_db():
                 password NVARCHAR(255) NOT NULL
             )
         """)
+        
+        # 2. Tabla de Historial de Análisis
+        cursor.execute("""
+            IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='historial_analisis' and xtype='U')
+            CREATE TABLE historial_analisis (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                usuario_email NVARCHAR(255) NOT NULL,
+                nombre_archivo NVARCHAR(255) NOT NULL,
+                fecha_analisis DATETIME DEFAULT GETDATE(),
+                total_estudiantes INT NOT NULL,
+                riesgo_bajo INT NOT NULL,
+                riesgo_medio INT NOT NULL,
+                riesgo_alto INT NOT NULL,
+                datos_json NVARCHAR(MAX) NOT NULL
+            )
+        """)
+        
         conn.commit()
         conn.close()
     except Exception as e:
-        print(f"Aviso en la creación de la tabla: {e}")
+        print(f"Aviso en la creación de las tablas: {e}")
 
 init_db()
 
-# Modelos Pydantic para validar peticiones
+# --- MODELOS PYDANTIC ---
 class UserCreate(BaseModel):
     email: str
     password: str
@@ -66,7 +83,6 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-# Lista de dominios admitidos
 DOMINIOS_PERMITIDOS = [
     "gmail.com",
     "outlook.com",
@@ -78,85 +94,6 @@ DOMINIOS_PERMITIDOS = [
     "duoc.cl",
     "profesor.duoc.cl"
 ]
-
-@app.post("/register")
-def register(user: UserCreate):
-    email_limpio = user.email.strip().lower()
-
-    # 1. Validar que contenga un '@' y extraer el dominio
-    if "@" not in email_limpio:
-        raise HTTPException(status_code=400, detail="Formato de correo no válido.")
-
-    partes = email_limpio.split("@")
-    if len(partes) != 2:
-        raise HTTPException(status_code=400, detail="Formato de correo no válido.")
-
-    dominio = partes[1]
-
-    # 2. Validar que el dominio esté dentro de la lista permitida
-    if dominio not in DOMINIOS_PERMITIDOS:
-        raise HTTPException(
-            status_code=400, 
-            detail=f"El dominio '@{dominio}' no está permitido. Usa un correo institucional o comercial válido."
-        )
-
-    # 3. Proceder con la base de datos
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT id FROM users WHERE email = ?", (email_limpio,))
-    if cursor.fetchone():
-        conn.close()
-        raise HTTPException(status_code=400, detail="El correo ya está registrado.")
-    
-    hashed_password = pwd_context.hash(user.password)
-    cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email_limpio, hashed_password))
-    conn.commit()
-    conn.close()
-    
-    return {"message": "Usuario registrado exitosamente"}
-
-
-
-
-# ENDPOINT DE REGISTRO
-@app.post("/register")
-def register(user: UserCreate):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Verificar si el correo ya existe
-    cursor.execute("SELECT id FROM users WHERE email = ?", (user.email,))
-    if cursor.fetchone():
-        conn.close()
-        raise HTTPException(status_code=400, detail="El correo ya está registrado")
-    
-    # Cifrar la contraseña antes de guardarla
-    hashed_password = pwd_context.hash(user.password)
-    
-    # Insertar usuario
-    cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (user.email, hashed_password))
-    conn.commit()
-    conn.close()
-    
-    return {"message": "Usuario registrado exitosamente"}
-
-
-
-# ENDPOINT DE INICIO DE SESIÓN
-@app.post("/login")
-def login(user: UserLogin):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT password FROM users WHERE email = ?", (user.email,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row or not pwd_context.verify(user.password, row[0]):
-        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
-        
-    return {"message": "Inicio de sesión exitoso", "email": user.email}
 
 COLUMNAS_REQUERIDAS = [
     "ID estudiante",
@@ -181,32 +118,78 @@ COLUMNAS_REQUERIDAS = [
     "Beneficiario/a de beca",
     "Edad al momento de la matrícula",
     "Estudiante internacional",
-
     "Asignaturas del 1.er semestre (convalidadas)",
     "Asignaturas del 1.er semestre (inscritas)",
     "Asignaturas del 1.er semestre (evaluaciones)",
     "Asignaturas del 1.er semestre (aprobadas)",
     "Promedio del 1.er semestre",
     "Asignaturas del 1.er semestre (sin evaluaciones)",
-
     "Asignaturas del 2.º semestre (convalidadas)",
     "Asignaturas del 2.º semestre (inscritas)",
     "Asignaturas del 2.º semestre (evaluaciones)",
     "Asignaturas del 2.º semestre (aprobadas)",
     "Promedio del 2.º semestre",
     "Asignaturas del 2.º semestre (sin evaluaciones)",
-
     "Tasa de desempleo",
     "Tasa de inflación",
     "PIB"
 ]
 
+# --- ENDPOINTS DE AUTENTICACIÓN ---
+@app.post("/register")
+def register(user: UserCreate):
+    email_limpio = user.email.strip().lower()
+
+    if "@" not in email_limpio:
+        raise HTTPException(status_code=400, detail="Formato de correo no válido.")
+
+    partes = email_limpio.split("@")
+    if len(partes) != 2:
+        raise HTTPException(status_code=400, detail="Formato de correo no válido.")
+
+    dominio = partes[1]
+
+    if dominio not in DOMINIOS_PERMITIDOS:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"El dominio '@{dominio}' no está permitido. Usa un correo institucional o comercial válido."
+        )
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email_limpio,))
+    if cursor.fetchone():
+        conn.close()
+        raise HTTPException(status_code=400, detail="El correo ya está registrado.")
+    
+    hashed_password = pwd_context.hash(user.password)
+    cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email_limpio, hashed_password))
+    conn.commit()
+    conn.close()
+    
+    return {"message": "Usuario registrado exitosamente"}
+
+@app.post("/login")
+def login(user: UserLogin):
+    email_limpio = user.email.strip().lower()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT password FROM users WHERE email = ?", (email_limpio,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row or not pwd_context.verify(user.password, row[0]):
+        raise HTTPException(status_code=401, detail="Correo o contraseña incorrectos")
+        
+    return {"message": "Inicio de sesión exitoso", "email": email_limpio}
+
+# --- ENDPOINTS DE ANÁLISIS E HISTORIAL ---
 @app.post("/validar-archivo")
 async def validar_archivo(file: UploadFile = File(...)):
-
     nombre_archivo = file.filename.lower()
 
-    # Comprobar extensión
     if not nombre_archivo.endswith((".csv", ".xlsx")):
         raise HTTPException(
             status_code=400,
@@ -215,60 +198,24 @@ async def validar_archivo(file: UploadFile = File(...)):
 
     try:
         contenido = await file.read()
-
-        # Leer CSV
         if nombre_archivo.endswith(".csv"):
-            df = pd.read_csv(
-                io.BytesIO(contenido),
-                dtype={"ID estudiante": "string"},
-                encoding="utf-8-sig"
-            )
-
-        # Leer Excel
+            df = pd.read_csv(io.BytesIO(contenido), dtype={"ID estudiante": "string"}, encoding="utf-8-sig")
         else:
-            df = pd.read_excel(
-                io.BytesIO(contenido),
-                dtype={"ID estudiante": "string"}
-            )
-
+            df = pd.read_excel(io.BytesIO(contenido), dtype={"ID estudiante": "string"})
     except Exception:
-        raise HTTPException(
-            status_code=400,
-            detail="No se pudo leer el archivo."
-        )
+        raise HTTPException(status_code=400, detail="No se pudo leer el archivo.")
 
-
-    # Obtener columnas recibidas
     columnas_recibidas = list(df.columns)
+    columnas_faltantes = [col for col in COLUMNAS_REQUERIDAS if col not in columnas_recibidas]
+    columnas_extra = [col for col in columnas_recibidas if col not in COLUMNAS_REQUERIDAS]
 
-
-    # Buscar columnas faltantes
-    columnas_faltantes = [
-        columna
-        for columna in COLUMNAS_REQUERIDAS
-        if columna not in columnas_recibidas
-    ]
-
-
-    # Buscar columnas adicionales
-    columnas_extra = [
-        columna
-        for columna in columnas_recibidas
-        if columna not in COLUMNAS_REQUERIDAS
-    ]
-
-
-    # Si encontramos problemas
     if columnas_faltantes or columnas_extra:
-
         return {
             "valido": False,
             "columnas_faltantes": columnas_faltantes,
             "columnas_extra": columnas_extra
         }
 
-
-    # Archivo correcto
     return {
         "valido": True,
         "filas": len(df),
@@ -276,66 +223,30 @@ async def validar_archivo(file: UploadFile = File(...)):
     }
 
 @app.post("/analizar")
-async def analizar_archivo(file: UploadFile = File(...)):
+async def analizar_archivo(
+    file: UploadFile = File(...),
+    usuario_email: str = Form("usuario@trayectoria.com")
+):
+    nombre_archivo = file.filename
 
-    nombre_archivo = file.filename.lower()
-
-    # -----------------------------------------
-    # 1. Comprobar extensión
-    # -----------------------------------------
-
-    if not nombre_archivo.endswith((".csv", ".xlsx")):
-        raise HTTPException(
-            status_code=400,
-            detail="El archivo debe ser CSV o XLSX."
-        )
-
-
-    # -----------------------------------------
-    # 2. Leer archivo
-    # -----------------------------------------
+    if not nombre_archivo.lower().endswith((".csv", ".xlsx")):
+        raise HTTPException(status_code=400, detail="El archivo debe ser CSV o XLSX.")
 
     try:
-
         contenido = await file.read()
-
-        if nombre_archivo.endswith(".csv"):
+        if nombre_archivo.lower().endswith(".csv"):
             df = pd.read_csv(io.BytesIO(contenido))
-
         else:
             df = pd.read_excel(io.BytesIO(contenido))
-
     except Exception as e:
-
         print("Error leyendo archivo:", e)
-
-        raise HTTPException(
-            status_code=400,
-            detail="No se pudo leer el archivo."
-        )
-
-
-    # -----------------------------------------
-    # 3. Validar columnas
-    # -----------------------------------------
+        raise HTTPException(status_code=400, detail="No se pudo leer el archivo.")
 
     columnas_recibidas = list(df.columns)
-
-    columnas_faltantes = [
-        columna
-        for columna in COLUMNAS_REQUERIDAS
-        if columna not in columnas_recibidas
-    ]
-
-    columnas_extra = [
-        columna
-        for columna in columnas_recibidas
-        if columna not in COLUMNAS_REQUERIDAS
-    ]
-
+    columnas_faltantes = [col for col in COLUMNAS_REQUERIDAS if col not in columnas_recibidas]
+    columnas_extra = [col for col in columnas_recibidas if col not in COLUMNAS_REQUERIDAS]
 
     if columnas_faltantes or columnas_extra:
-
         raise HTTPException(
             status_code=400,
             detail={
@@ -345,18 +256,9 @@ async def analizar_archivo(file: UploadFile = File(...)):
             }
         )
 
-
-    # -----------------------------------------
-    # 4. Ejecutar modelo
-    # -----------------------------------------
-
     try:
-
         resultado = procesar_dataframe(df)
 
-        print("PRUEBA FILTROS: se está ejecutando el código actualizado")
-
-        # Recuperar datos originales para los filtros del dashboard
         columnas_filtros = [
             "Carrera",
             "Género",
@@ -367,63 +269,24 @@ async def analizar_archivo(file: UploadFile = File(...)):
         ]
 
         for columna in columnas_filtros:
-            resultado[columna] = df[columna].to_numpy()
-
-        # Comprobar que las columnas se agregaron correctamente
-        print("COLUMNAS DEL RESULTADO:", resultado.columns.tolist())
-        print("CARRERA DEL PRIMER ESTUDIANTE:", resultado["Carrera"].iloc[0])
-        
+            if columna in df.columns:
+                resultado[columna] = df[columna].to_numpy()
 
     except ValueError as e:
-
-        # Errores esperables en los datos:
-        # categorías inválidas, nulos, etc.
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
-
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-
         print("Error ejecutando modelo:", e)
-
-        raise HTTPException(
-            status_code=500,
-            detail="Ocurrió un error al ejecutar el modelo."
-        )
-
-
-    # -----------------------------------------
-    # 5. Preparar resumen
-    # -----------------------------------------
+        raise HTTPException(status_code=500, detail="Ocurrió un error al ejecutar el modelo.")
 
     resumen = {
         "total_estudiantes": len(resultado),
-
-        "riesgo_bajo": int(
-            (resultado["nivel_riesgo"] == "Bajo").sum()
-        ),
-
-        "riesgo_medio": int(
-            (resultado["nivel_riesgo"] == "Medio").sum()
-        ),
-
-        "riesgo_alto": int(
-            (resultado["nivel_riesgo"] == "Alto").sum()
-        ),
-
-        "estudiantes_en_riesgo": int(
-            (resultado["en_riesgo"] == "Sí").sum()
-        )
+        "riesgo_bajo": int((resultado["nivel_riesgo"] == "Bajo").sum()),
+        "riesgo_medio": int((resultado["nivel_riesgo"] == "Medio").sum()),
+        "riesgo_alto": int((resultado["nivel_riesgo"] == "Alto").sum()),
+        "estudiantes_en_riesgo": int((resultado["en_riesgo"] == "Sí").sum())
     }
 
-
-    # -----------------------------------------
-    # 6. Convertir resultados a JSON
-    # -----------------------------------------
-
-    resultados = resultado[
-    [
+    columnas_exportar = [
         "ID estudiante",
         "Carrera",
         "Género",
@@ -442,24 +305,77 @@ async def analizar_archivo(file: UploadFile = File(...)):
         "alertas_individuales",
         "recomendaciones_individuales"
     ]
-].copy()
+    
+    cols_existentes = [c for c in columnas_exportar if c in resultado.columns]
+    resultados = resultado[cols_existentes].copy()
 
-    # pd.NA no puede enviarse directamente como JSON
-    resultados["cluster"] = (
-        resultados["cluster"]
-        .astype(object)
-        .where(resultados["cluster"].notna(), None)
-    )
+    if "cluster" in resultados.columns:
+        resultados["cluster"] = (
+            resultados["cluster"]
+            .astype(object)
+            .where(resultados["cluster"].notna(), None)
+        )
 
-
-    # -----------------------------------------
-    # 7. Respuesta
-    # -----------------------------------------
-
-    return {
+    payload_respuesta = {
         "valido": True,
         "resumen": resumen,
-        "resultados": resultados.to_dict(
-            orient="records"
-        )
+        "resultados": resultados.to_dict(orient="records")
     }
+
+    # Persistencia en SQL Server vinculada al usuario
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO historial_analisis 
+            (usuario_email, nombre_archivo, total_estudiantes, riesgo_bajo, riesgo_medio, riesgo_alto, datos_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (
+            usuario_email.strip().lower(),
+            nombre_archivo,
+            resumen["total_estudiantes"],
+            resumen["riesgo_bajo"],
+            resumen["riesgo_medio"],
+            resumen["riesgo_alto"],
+            json.dumps(payload_respuesta)
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as db_err:
+        print(f"Error al guardar historial en BD: {db_err}")
+
+    return payload_respuesta
+
+@app.get("/historial/{usuario_email}")
+def obtener_historial(usuario_email: str):
+    email_limpio = usuario_email.strip().lower()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT id, nombre_archivo, CONVERT(VARCHAR, fecha_analisis, 120) AS fecha,
+                   total_estudiantes, riesgo_bajo, riesgo_medio, riesgo_alto, datos_json
+            FROM historial_analisis
+            WHERE usuario_email = ?
+            ORDER BY fecha_analisis DESC
+        """, (email_limpio,))
+        
+        rows = cursor.fetchall()
+        conn.close()
+
+        historial = []
+        for row in rows:
+            historial.append({
+                "id": row[0],
+                "nombre_archivo": row[1],
+                "fecha": row[2],
+                "total_estudiantes": row[3],
+                "riesgo_bajo": row[4],
+                "riesgo_medio": row[5],
+                "riesgo_alto": row[6],
+                "datos": json.loads(row[7])
+            })
+        return historial
+    except Exception as e:
+        print(f"Error al consultar historial: {e}")
+        raise HTTPException(status_code=500, detail="Error al recuperar el historial.")

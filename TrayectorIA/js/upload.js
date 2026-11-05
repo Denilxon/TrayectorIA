@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- ELEMENTOS DEL DOM ---
+    // --- ELEMENTOS DEL DOM: ARCHIVOS Y CONTENEDORES ---
     const fileInput = document.getElementById('file-input');
     const selectFileBtn = document.querySelector('.select-file-btn');
     const analyzeBtn = document.querySelector('.analyze-btn');
@@ -11,18 +11,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileSize = document.getElementById('file-size');
     const removeFileBtn = document.getElementById('remove-file-btn');
 
+    // Modales de formato y ficha individual
     const formatBtn = document.querySelector('.format-btn');
     const formatModal = document.getElementById('format-modal');
     const closeFormatModal = document.getElementById('close-format-modal');
 
-    // Elementos del Modal de Estudiante y Filtros
     const studentModal = document.getElementById('student-modal');
     const closeStudentModalBtn = document.getElementById('close-student-modal');
+
+    // Herramientas de filtrado, búsqueda y exportación
     const searchInput = document.getElementById('student-search');
     const filterRiskSelect = document.getElementById('filter-risk');
     const filterCareerSelect = document.getElementById('filter-career');
     const filterGenderSelect = document.getElementById('filter-gender');
+    const resetFiltersBtn = document.getElementById('reset-filters-btn');
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
+
+    // Métricas KPI
+    const kpiTotal = document.getElementById('kpi-total');
+    const kpiBajo = document.getElementById('kpi-bajo');
+    const kpiMedio = document.getElementById('kpi-medio');
+    const kpiAlto = document.getElementById('kpi-alto');
+
+    // Historial
+    const historialSection = document.getElementById('historial-section');
+    const historialTableBody = document.getElementById('historial-table-body');
+    const refreshHistorialBtn = document.getElementById('refresh-historial-btn');
 
     let archivoSeleccionado = null;
     let listaEstudiantesGlobal = [];
@@ -31,13 +45,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let chartRiesgoInstance = null;
     let chartPerfilesInstance = null;
 
-    // Estado inicial: asegurar que la caja de información empiece oculta
+    // Obtener correo autenticado real
+    function obtenerUsuarioActivo() {
+        return localStorage.getItem('user_email') || 
+               localStorage.getItem('trayectoria_user') || 
+               sessionStorage.getItem('user_email') || 
+               '';
+    }
+
     if (fileInfo) {
         fileInfo.hidden = true;
         fileInfo.style.display = 'none';
     }
 
-    // Notificaciones toast con fallback
     function notify(msg, type = 'info') {
         if (typeof showToast === 'function') {
             showToast(msg, type);
@@ -62,18 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fileName) fileName.textContent = file.name;
         if (fileSize) fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
         
-        // Mostrar contenedor del archivo
         if (fileInfo) {
             fileInfo.hidden = false;
             fileInfo.style.display = 'flex';
         }
 
-        // Habilitar botón de análisis
         if (analyzeBtn) {
             analyzeBtn.disabled = false;
         }
 
-        // Ocultar resultados previos si se carga un archivo nuevo
         const dashboardSection = document.getElementById('dashboard-results');
         if (dashboardSection) {
             dashboardSection.style.display = 'none';
@@ -82,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         notify(`Archivo cargado: ${file.name}`, 'success');
     }
 
-    // --- SELECCIÓN POR BOTÓN O DRAG & DROP ---
+    // --- EVENTOS DE SELECCIÓN Y DRAG & DROP ---
     if (selectFileBtn && fileInput) {
         selectFileBtn.addEventListener('click', () => {
             fileInput.value = '';
@@ -96,27 +113,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- QUITAR ARCHIVO SELECCIONADO ---
     if (removeFileBtn) {
         removeFileBtn.addEventListener('click', () => {
             archivoSeleccionado = null;
-            
             if (fileInput) fileInput.value = '';
             if (fileName) fileName.textContent = '';
             if (fileSize) fileSize.textContent = '';
 
-            // Ocultar completamente el recuadro de información
             if (fileInfo) {
                 fileInfo.hidden = true;
                 fileInfo.style.display = 'none';
             }
 
-            // Deshabilitar botón de análisis
             if (analyzeBtn) {
                 analyzeBtn.disabled = true;
             }
 
-            // Ocultar resultados del dashboard
             const dashboardSection = document.getElementById('dashboard-results');
             if (dashboardSection) {
                 dashboardSection.style.display = 'none';
@@ -145,25 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-        // Referencia al botón de limpiar
-    const resetFiltersBtn = document.getElementById('reset-filters-btn');
-
-    // Función para reiniciar los campos y repintar
-    function reiniciarFiltros() {
-        if (searchInput) searchInput.value = '';
-        if (filterRiskSelect) filterRiskSelect.value = 'todos';
-        if (filterCareerSelect) filterCareerSelect.value = 'todos';
-        if (filterGenderSelect) filterGenderSelect.value = 'todos';
-
-        // Volver a evaluar los filtros para restaurar la tabla y los gráficos
-        aplicarFiltros();
-    }
-
-    if (resetFiltersBtn) {
-        resetFiltersBtn.addEventListener('click', reiniciarFiltros);
-    }
-
-    // --- APERTURA Y CIERRE DE LA FICHA INDIVIDUAL ---
+    // --- MODAL DE FICHA INDIVIDUAL DE ESTUDIANTE ---
     function abrirFichaEstudiante(est) {
         if (!studentModal) return;
 
@@ -201,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- TABLA Y FILTROS EN TIEMPO REAL ---
+    // --- RENDERIZADO DE LA TABLA DE ESTUDIANTES ---
     function pintarTablaEstudiantes(estudiantes) {
         const tableBody = document.getElementById('dashboard-table-body');
         if (!tableBody) return;
@@ -240,6 +234,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- ACTUALIZACIÓN REACTIVA DE KPIS Y GRÁFICOS ---
+    function actualizarVisualizaciones(filtrados) {
+        let bajo = 0;
+        let medio = 0;
+        let alto = 0;
+
+        filtrados.forEach(est => {
+            const nivel = (est.nivel_riesgo || '').toLowerCase();
+            if (nivel === 'bajo') bajo++;
+            else if (nivel === 'medio') medio++;
+            else if (nivel === 'alto') alto++;
+        });
+
+        if (kpiTotal) kpiTotal.textContent = filtrados.length;
+        if (kpiBajo) kpiBajo.textContent = bajo;
+        if (kpiMedio) kpiMedio.textContent = medio;
+        if (kpiAlto) kpiAlto.textContent = alto;
+
+        if (chartRiesgoInstance) {
+            chartRiesgoInstance.data.datasets[0].data = [bajo, medio, alto];
+            chartRiesgoInstance.update();
+        }
+
+        if (chartPerfilesInstance) {
+            const conteoPerfiles = {};
+            filtrados.forEach(est => {
+                const nombre = est.perfil || `Cluster ${est.cluster ?? 'General'}`;
+                conteoPerfiles[nombre] = (conteoPerfiles[nombre] || 0) + 1;
+            });
+
+            chartPerfilesInstance.data.labels = Object.keys(conteoPerfiles);
+            chartPerfilesInstance.data.datasets[0].data = Object.values(conteoPerfiles);
+            chartPerfilesInstance.update();
+        }
+    }
+
+    // --- FILTRADO COMBINADO EN TIEMPO REAL ---
     function aplicarFiltros() {
         const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
         const nivelSeleccionado = filterRiskSelect ? filterRiskSelect.value : 'todos';
@@ -251,92 +282,86 @@ document.addEventListener('DOMContentLoaded', () => {
             const perfil = String(est.perfil || '').toLowerCase();
             const nivel = est.nivel_riesgo || '';
             const carrera = String(est['Carrera'] ?? '');
+            const genero = String(est['Género'] ?? '');
 
             const coincideTexto = id.includes(query) || perfil.includes(query);
             const coincideNivel = nivelSeleccionado === 'todos' || nivel === nivelSeleccionado;
             const coincideCarrera = carreraSeleccionada === 'todos' || carrera === carreraSeleccionada;
-            const coincideGenero = generoSeleccionado === 'todos' ||
-                String(est['Género'] ?? '') === generoSeleccionado;
+            const coincideGenero = generoSeleccionado === 'todos' || genero === generoSeleccionado;
 
             return coincideTexto && coincideNivel && coincideCarrera && coincideGenero;
         });
 
         pintarTablaEstudiantes(filtrados);
+        actualizarVisualizaciones(filtrados);
+    }
+
+    // --- REINICIAR Y LIMPIAR FILTROS ---
+    function limpiarFiltros() {
+        if (searchInput) searchInput.value = '';
+        if (filterRiskSelect) filterRiskSelect.value = 'todos';
+        if (filterCareerSelect) filterCareerSelect.value = 'todos';
+        if (filterGenderSelect) filterGenderSelect.value = 'todos';
+
+        aplicarFiltros();
     }
 
     if (searchInput) searchInput.addEventListener('input', aplicarFiltros);
     if (filterRiskSelect) filterRiskSelect.addEventListener('change', aplicarFiltros);
-    if (filterCareerSelect) {
-    filterCareerSelect.addEventListener('change', aplicarFiltros);
-    if (filterGenderSelect) {
-    filterGenderSelect.addEventListener('change', aplicarFiltros);
-}
-}
+    if (filterCareerSelect) filterCareerSelect.addEventListener('change', aplicarFiltros);
+    if (filterGenderSelect) filterGenderSelect.addEventListener('change', aplicarFiltros);
+    if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', limpiarFiltros);
 
     // --- RENDERIZADO DEL DASHBOARD ---
     function renderizarDashboard(data) {
         const { resumen, resultados } = data;
         listaEstudiantesGlobal = resultados || [];
 
-        console.log("Selector carrera:", filterCareerSelect);
-        console.log("Primer estudiante:", listaEstudiantesGlobal[0]);
-        console.log("Total estudiantes:", listaEstudiantesGlobal.length);
-
-        // Cargar las carreras disponibles en el archivo analizado
+        // Poblar carreras dinámicas
         if (filterCareerSelect) {
             const carreras = [...new Set(
                 listaEstudiantesGlobal
                     .map(est => est['Carrera'])
-                    .filter(carrera => carrera !== null && carrera !== undefined && carrera !== '')
-                    .map(carrera => String(carrera))
+                    .filter(c => c !== null && c !== undefined && c !== '')
+                    .map(String)
             )].sort((a, b) => a.localeCompare(b, 'es', { numeric: true }));
 
             filterCareerSelect.innerHTML = '<option value="todos">Todas las carreras</option>';
-
             carreras.forEach(carrera => {
-                const option = document.createElement('option');
-                option.value = carrera;
-                option.textContent = carrera;
-                filterCareerSelect.appendChild(option);
+                const opt = document.createElement('option');
+                opt.value = carrera;
+                opt.textContent = carrera;
+                filterCareerSelect.appendChild(opt);
             });
-
             filterCareerSelect.value = 'todos';
         }
 
+        // Poblar géneros dinámicos
         if (filterGenderSelect) {
             const generos = [...new Set(
                 listaEstudiantesGlobal
                     .map(est => est['Género'])
-                    .filter(valor => valor !== null && valor !== undefined && valor !== '')
+                    .filter(g => g !== null && g !== undefined && g !== '')
                     .map(String)
             )].sort();
 
             filterGenderSelect.innerHTML = '<option value="todos">Todos los géneros</option>';
-
             generos.forEach(genero => {
-                const option = document.createElement('option');
-                option.value = genero;
-                option.textContent = genero;
-                filterGenderSelect.appendChild(option);
+                const opt = document.createElement('option');
+                opt.value = genero;
+                opt.textContent = genero;
+                filterGenderSelect.appendChild(opt);
             });
-
             filterGenderSelect.value = 'todos';
         }
 
-        // 1. Mostrar contenedor principal
         const dashboardSection = document.getElementById('dashboard-results');
         if (dashboardSection) {
             dashboardSection.style.display = 'block';
             dashboardSection.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 2. Cargar KPIs
-        document.getElementById('kpi-total').textContent = resumen.total_estudiantes || 0;
-        document.getElementById('kpi-bajo').textContent = resumen.riesgo_bajo || 0;
-        document.getElementById('kpi-medio').textContent = resumen.riesgo_medio || 0;
-        document.getElementById('kpi-alto').textContent = resumen.riesgo_alto || 0;
-
-        // 3. Gráfico Dona de Riesgos
+        // Gráfico de Dona (Riesgos)
         const canvasRiesgo = document.getElementById('chart-riesgo');
         if (canvasRiesgo) {
             if (chartRiesgoInstance) chartRiesgoInstance.destroy();
@@ -358,12 +383,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } }
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { color: '#cbd5e1' } 
+                        } 
+                    }
                 }
             });
         }
 
-        // 4. Gráfico Barras Horizontales de Perfiles / Clusters
+        // Gráfico de Barras Horizontales (Perfiles)
         const canvasPerfiles = document.getElementById('chart-perfiles');
         if (canvasPerfiles) {
             const conteoPerfiles = {};
@@ -400,10 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 font: { size: 11 },
                                 callback: function(value) {
                                     const label = this.getLabelForValue(value);
-                                    if (label.length > 28) {
-                                        return label.substring(0, 26) + '...';
-                                    }
-                                    return label;
+                                    return label.length > 28 ? label.substring(0, 26) + '...' : label;
                                 }
                             }, 
                             grid: { display: false } 
@@ -421,10 +448,76 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // 5. Poblar tabla inicial
-        if (searchInput) searchInput.value = '';
-        if (filterRiskSelect) filterRiskSelect.value = 'todos';
-        pintarTablaEstudiantes(listaEstudiantesGlobal);
+        limpiarFiltros();
+    }
+
+    // --- CARGAR Y GESTIONAR HISTORIAL DE ANÁLISIS ---
+    async function cargarHistorial() {
+        const usuarioEmail = obtenerUsuarioActivo();
+
+        // Si NO hay usuario autenticado, mantener la sección oculta
+        if (!usuarioEmail) {
+            if (historialSection) historialSection.style.display = 'none';
+            return;
+        }
+
+        if (!historialTableBody) return;
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/historial/${encodeURIComponent(usuarioEmail)}`);
+            if (!response.ok) return;
+
+            const listaHistorial = await response.json();
+            historialTableBody.innerHTML = '';
+
+            if (listaHistorial.length === 0) {
+                historialTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 25px;">No registras análisis anteriores.</td></tr>`;
+            } else {
+                listaHistorial.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.fecha}</td>
+                        <td><strong>${item.nombre_archivo}</strong></td>
+                        <td>${item.total_estudiantes}</td>
+                        <td><span class="badge-risk bajo">${item.riesgo_bajo}</span></td>
+                        <td><span class="badge-risk medio">${item.riesgo_medio}</span></td>
+                        <td><span class="badge-risk alto">${item.riesgo_alto}</span></td>
+                        <td style="text-align: center;">
+                            <button type="button" class="btn-view-detail btn-load-historic">
+                                <i class="ri-folder-open-line"></i> Ver Dashboard
+                            </button>
+                        </td>
+                    `;
+
+                    tr.querySelector('.btn-load-historic').addEventListener('click', () => {
+                        renderizarDashboard(item.datos);
+                        notify(`Cargado análisis histórico: ${item.nombre_archivo}`, 'info');
+                    });
+
+                    historialTableBody.appendChild(tr);
+                });
+            }
+
+            // Hacer visible solo si hay sesión activa
+            if (historialSection) historialSection.style.display = 'block';
+
+        } catch (err) {
+            console.error("Error al cargar historial:", err);
+        }
+    }
+
+    // Exponer la función globalmente para que auth.js la invoque tras el login
+    window.cargarHistorial = cargarHistorial;
+
+    if (refreshHistorialBtn) {
+        refreshHistorialBtn.addEventListener('click', cargarHistorial);
+    }
+
+    // Comprobación inicial de ejecución
+    if (obtenerUsuarioActivo()) {
+        cargarHistorial();
+    } else {
+        if (historialSection) historialSection.style.display = 'none';
     }
 
     // --- ACCIÓN BOTÓN ANALIZAR ---
@@ -435,8 +528,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            const usuarioEmail = obtenerUsuarioActivo();
+            if (!usuarioEmail) {
+                notify('Debes iniciar sesión para realizar un análisis.', 'error');
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', archivoSeleccionado);
+            formData.append('usuario_email', usuarioEmail);
 
             analyzeBtn.disabled = true;
             const originalHTML = analyzeBtn.innerHTML;
@@ -462,6 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 renderizarDashboard(data);
+                cargarHistorial();
                 notify(`¡Análisis completado! Se procesaron ${data.resumen.total_estudiantes} estudiantes.`, 'success');
 
             } catch (err) {
@@ -474,7 +575,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    
     // --- LÓGICA DE DESCARGA DE PDF DEL DASHBOARD ---
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', () => {
@@ -485,23 +585,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Opciones corregidas para evitar pantalla en blanco y cortes de canvas
             const options = {
-                margin:       [10, 10, 10, 10], // top, left, bottom, right en mm
+                margin:       [10, 10, 10, 10],
                 filename:     'Reporte_Analisis_TrayectorIA.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
-                    scale: 2,                  // Nitidez HD en textos y gráficos
+                    scale: 2,
                     useCORS: true, 
-                    scrollY: 0,                // CLAVE: Evita captura desfasada por scroll
+                    scrollY: 0,
                     scrollX: 0,
-                    backgroundColor: '#0b1120',// Fuerza el fondo oscuro oficial en el PDF
+                    backgroundColor: '#0b1120',
                     logging: false
                 },
                 jsPDF: { 
                     unit: 'mm', 
                     format: 'a4', 
-                    orientation: 'landscape'   // Dashboard horizontal
+                    orientation: 'landscape' 
                 }
             };
 
@@ -534,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Tabla de especificación de formato
     const formatTableBody = document.getElementById('format-table-body');
     if (formatTableBody) {
         const columnas = [

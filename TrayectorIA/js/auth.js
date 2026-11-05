@@ -38,36 +38,35 @@ document.addEventListener('DOMContentLoaded', () => {
     // =========================================================
 
     function showPrivateUI(email) {
-        // Mostrar opciones privadas del menú lateral (Análisis Predictivo, Cerrar Sesión)
+        // Mostrar todos los elementos marcados como privados (.private-only)
         const privateItems = document.querySelectorAll('.private-only');
         privateItems.forEach(item => {
             item.style.display = 'block';
         });
-
-        // Mostrar sección de análisis predictivo
-        const dashboardAnalisis = document.getElementById('dashboard-analisis');
-        if (dashboardAnalisis) {
-            dashboardAnalisis.style.display = 'block';
-        }
 
         // Mostrar correo del usuario en la barra superior fija
         if (userEmailDisplay) {
             userEmailDisplay.textContent = email;
             userEmailDisplay.style.display = 'inline';
         }
+
+        // Si la función cargarHistorial existe en upload.js, invocarla
+        if (typeof window.cargarHistorial === 'function') {
+            window.cargarHistorial();
+        }
     }
 
     function hidePrivateUI() {
-        // Ocultar opciones privadas
+        // Ocultar todos los elementos privados
         const privateItems = document.querySelectorAll('.private-only');
         privateItems.forEach(item => {
             item.style.display = 'none';
         });
 
-        // Ocultar dashboard
-        const dashboardAnalisis = document.getElementById('dashboard-analisis');
-        if (dashboardAnalisis) {
-            dashboardAnalisis.style.display = 'none';
+        // Ocultar resultados previos del dashboard
+        const dashboardResults = document.getElementById('dashboard-results');
+        if (dashboardResults) {
+            dashboardResults.style.display = 'none';
         }
 
         // Limpiar y ocultar correo en la barra
@@ -78,11 +77,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // =========================================================
-    // PERSISTENCIA: COMPROBAR SESIÓN GUARDADA AL CARGAR LA PÁGINA
+    // PERSISTENCIA: COMPROBAR SESIÓN GUARDADA AL CARGAR
     // =========================================================
-    const usuarioGuardado = localStorage.getItem('trayectoria_user');
+    const usuarioGuardado = localStorage.getItem('trayectoria_user') || localStorage.getItem('user_email');
     if (usuarioGuardado) {
+        // Sincronizar ambas claves de persistencia
+        localStorage.setItem('trayectoria_user', usuarioGuardado);
+        localStorage.setItem('user_email', usuarioGuardado);
         showPrivateUI(usuarioGuardado);
+    } else {
+        hidePrivateUI();
     }
 
     // =========================================================
@@ -91,8 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (openAuthModalBtn && authModal) {
         openAuthModalBtn.addEventListener('click', (e) => {
-            // Si el usuario ya está conectado, no abrir el modal de login
-            if (localStorage.getItem('trayectoria_user')) {
+            if (localStorage.getItem('trayectoria_user') || localStorage.getItem('user_email')) {
                 return;
             }
             e.preventDefault();
@@ -174,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 registerForm.reset();
 
-                // Cambiar a la pestaña de login
                 tabBtns.forEach(btn => btn.classList.remove('active'));
                 authForms.forEach(form => form.classList.remove('active'));
 
@@ -228,10 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // --- PERSISTENCIA: Guardar sesión en el almacenamiento local ---
+                // Guardar usuario en almacenamiento persistente
                 localStorage.setItem('trayectoria_user', email);
+                localStorage.setItem('user_email', email);
 
-                // Mostrar interfaz privada y cerrar modal
                 showPrivateUI(email);
                 authModal.classList.remove('active');
                 loginForm.reset();
@@ -257,17 +259,16 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // --- PERSISTENCIA: Eliminar sesión de localStorage ---
             localStorage.removeItem('trayectoria_user');
+            localStorage.removeItem('user_email');
+            sessionStorage.clear();
 
-            // Ocultar elementos privados
             hidePrivateUI();
 
             if (typeof showToast === 'function') {
                 showToast('Has cerrado sesión correctamente.', 'success');
             }
 
-            // Redirigir suavemente al inicio público
             window.location.hash = '#inicio';
         });
     }
