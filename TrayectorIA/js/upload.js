@@ -145,6 +145,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+        // Referencia al botón de limpiar
+    const resetFiltersBtn = document.getElementById('reset-filters-btn');
+
+    // Función para reiniciar los campos y repintar
+    function reiniciarFiltros() {
+        if (searchInput) searchInput.value = '';
+        if (filterRiskSelect) filterRiskSelect.value = 'todos';
+        if (filterCareerSelect) filterCareerSelect.value = 'todos';
+        if (filterGenderSelect) filterGenderSelect.value = 'todos';
+
+        // Volver a evaluar los filtros para restaurar la tabla y los gráficos
+        aplicarFiltros();
+    }
+
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', reiniciarFiltros);
+    }
+
     // --- APERTURA Y CIERRE DE LA FICHA INDIVIDUAL ---
     function abrirFichaEstudiante(est) {
         if (!studentModal) return;
@@ -456,32 +474,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    
     // --- LÓGICA DE DESCARGA DE PDF DEL DASHBOARD ---
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', () => {
             const element = document.getElementById('dashboard-results');
             
-            if (!element) {
+            if (!element || element.style.display === 'none') {
                 notify('No hay datos en el dashboard para exportar.', 'error');
                 return;
             }
 
+            // Opciones corregidas para evitar pantalla en blanco y cortes de canvas
             const options = {
-                margin:       10,
+                margin:       [10, 10, 10, 10], // top, left, bottom, right en mm
                 filename:     'Reporte_Analisis_TrayectorIA.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 1, useCORS: true, logging: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                html2canvas:  { 
+                    scale: 2,                  // Nitidez HD en textos y gráficos
+                    useCORS: true, 
+                    scrollY: 0,                // CLAVE: Evita captura desfasada por scroll
+                    scrollX: 0,
+                    backgroundColor: '#0b1120',// Fuerza el fondo oscuro oficial en el PDF
+                    logging: false
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'landscape'   // Dashboard horizontal
+                }
             };
 
             notify('Generando PDF del dashboard, por favor espera...', 'info');
 
-            html2pdf().from(element).set(options).save().then(() => {
-                notify('¡PDF descargado exitosamente!', 'success');
-            }).catch(err => {
-                console.error('Error generando PDF:', err);
-                notify('Ocurrió un error al generar el archivo PDF.', 'error');
-            });
+            html2pdf()
+                .set(options)
+                .from(element)
+                .save()
+                .then(() => {
+                    notify('¡PDF descargado exitosamente!', 'success');
+                })
+                .catch(err => {
+                    console.error('Error generando PDF:', err);
+                    notify('Ocurrió un error al generar el archivo PDF.', 'error');
+                });
         });
     }
 
