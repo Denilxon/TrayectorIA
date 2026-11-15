@@ -157,13 +157,45 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+    // Formatear porcentajes de riesgo
+    function formatearPorcentaje(est) {
+        const porcentaje = est.porcentaje_riesgo;
+
+        if (
+            porcentaje !== null &&
+            porcentaje !== undefined &&
+            String(porcentaje).trim() !== ''
+        ) {
+            const numero = Number(
+                String(porcentaje).replace('%', '').replace(',', '.')
+            );
+
+            if (Number.isFinite(numero)) {
+                return `${numero.toFixed(1)}%`;
+            }
+        }
+
+        const probabilidad = Number(est.probabilidad_desercion);
+
+        if (Number.isFinite(probabilidad) &&
+            est.probabilidad_desercion !== null &&
+            est.probabilidad_desercion !== undefined &&
+            est.probabilidad_desercion !== '') {
+            return `${(probabilidad * 100).toFixed(1)}%`;
+        }
+
+        return '-';
+    }
+
+
     // --- MODAL DE FICHA INDIVIDUAL DE ESTUDIANTE ---
     function abrirFichaEstudiante(est) {
         if (!studentModal) return;
 
         const id = est['ID estudiante'] || 'Sin ID';
         const nivel = est.nivel_riesgo || 'Bajo';
-        const prob = est.porcentaje_riesgo || (est.probabilidad_desercion ? `${(est.probabilidad_desercion * 100).toFixed(1)}%` : '-');
+        const prob = formatearPorcentaje(est);
 
         document.getElementById('modal-student-id').textContent = `Estudiante #${id}`;
         
@@ -174,13 +206,68 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-student-perfil').textContent = est.perfil || (est.cluster !== null ? `Cluster ${est.cluster}` : 'Perfil General');
         document.getElementById('modal-student-prob').textContent = prob;
 
-        let alertas = 'Sin alertas registradas.';
-        if (Array.isArray(est.alertas_individuales) && est.alertas_individuales.length > 0) {
-            alertas = est.alertas_individuales.join(' • ');
-        } else if (typeof est.alertas_individuales === 'string' && est.alertas_individuales.trim()) {
-            alertas = est.alertas_individuales;
+
+        // --- PRESENTACIÓN DE FACTORES DE ALERTA ---
+        const contenedorAlertas = document.getElementById(
+            'modal-student-alertas'
+        );
+
+        if (contenedorAlertas) {
+            contenedorAlertas.innerHTML = '';
+
+            let alertas = est.alertas_individuales;
+
+            // Si el backend entrega JSON como texto,
+            // convertirlo en un arreglo de objetos.
+            if (typeof alertas === 'string') {
+                const texto = alertas.trim();
+
+                try {
+                    alertas = JSON.parse(texto);
+                } catch (error) {
+                    alertas = texto ? [texto] : [];
+                }
+            }
+
+            // Normalizar una alerta individual a una lista.
+            if (!Array.isArray(alertas)) {
+                alertas = alertas ? [alertas] : [];
+            }
+
+            if (alertas.length === 0) {
+                contenedorAlertas.textContent =
+                    'Sin factores de alerta registrados.';
+            } else {
+                alertas.forEach(alerta => {
+                    const elemento = document.createElement('div');
+                    elemento.className = 'alerta-individual';
+
+                    if (alerta && typeof alerta === 'object') {
+                        const titulo = document.createElement('strong');
+                        titulo.className = 'alerta-titulo';
+
+                        titulo.textContent =
+                            alerta.etiqueta ||
+                            alerta.codigo ||
+                            'Factor registrado';
+
+                        elemento.appendChild(titulo);
+
+                        if (alerta.detalle) {
+                            const descripcion = document.createElement('p');
+                            descripcion.className = 'alerta-descripcion';
+                            descripcion.textContent = alerta.detalle;
+                            elemento.appendChild(descripcion);
+                        }
+                    } else {
+                        elemento.textContent = String(alerta);
+                    }
+
+                    contenedorAlertas.appendChild(elemento);
+                });
+            }
         }
-        document.getElementById('modal-student-alertas').textContent = alertas;
+
 
         const intervencion = est.intervencion_sugerida || est.recomendaciones_individuales || 'Seguimiento general periódico.';
         document.getElementById('modal-student-intervencion').textContent = intervencion;
@@ -211,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const nivelRiesgo = est.nivel_riesgo || 'Bajo';
             const nivelClass = nivelRiesgo.toLowerCase();
             const idEstudiante = est['ID estudiante'] || '-';
-            const porcentaje = est.porcentaje_riesgo || (est.probabilidad_desercion ? `${(est.probabilidad_desercion * 100).toFixed(1)}%` : '-');
+            const porcentaje = formatearPorcentaje(est);
             const perfil = est.perfil || (est.cluster !== null ? `Cluster ${est.cluster}` : 'General');
 
             tr.innerHTML = `
@@ -393,59 +480,158 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+
         // Gráfico de Barras Horizontales (Perfiles)
         const canvasPerfiles = document.getElementById('chart-perfiles');
+
         if (canvasPerfiles) {
             const conteoPerfiles = {};
+
             listaEstudiantesGlobal.forEach(est => {
-                const nombre = est.perfil || `Cluster ${est.cluster ?? 'General'}`;
-                conteoPerfiles[nombre] = (conteoPerfiles[nombre] || 0) + 1;
+                const nombre = est.perfil ||
+                    `Cluster ${est.cluster ?? 'General'}`;
+
+                conteoPerfiles[nombre] =
+                    (conteoPerfiles[nombre] || 0) + 1;
             });
 
-            if (chartPerfilesInstance) chartPerfilesInstance.destroy();
+            if (chartPerfilesInstance) {
+                chartPerfilesInstance.destroy();
+            }
 
-            chartPerfilesInstance = new Chart(canvasPerfiles.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(conteoPerfiles),
-                    datasets: [{
-                        label: 'Estudiantes',
-                        data: Object.values(conteoPerfiles),
-                        backgroundColor: '#38bdf8',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { 
-                            ticks: { color: '#94a3b8', precision: 0 }, 
-                            grid: { color: '#1e293b' } 
-                        },
-                        y: { 
-                            ticks: { 
-                                color: '#cbd5e1',
-                                font: { size: 11 },
-                                callback: function(value) {
-                                    const label = this.getLabelForValue(value);
-                                    return label.length > 28 ? label.substring(0, 26) + '...' : label;
-                                }
-                            }, 
-                            grid: { display: false } 
-                        }
+            // Divide nombres largos en varias líneas
+            function dividirEtiqueta(texto, maxCaracteres = 23) {
+                const palabras = String(texto).split(/\s+/);
+                const lineas = [];
+                let linea = '';
+
+                palabras.forEach(palabra => {
+                    const candidata = linea
+                        ? `${linea} ${palabra}`
+                        : palabra;
+
+                    if (candidata.length > maxCaracteres && linea) {
+                        lineas.push(linea);
+                        linea = palabra;
+                    } else {
+                        linea = candidata;
+                    }
+                });
+
+                if (linea) lineas.push(linea);
+
+                return lineas;
+            }
+
+            chartPerfilesInstance = new Chart(
+                canvasPerfiles.getContext('2d'),
+                {
+                    type: 'bar',
+
+                    data: {
+                        labels: Object.keys(conteoPerfiles),
+
+                        datasets: [{
+                            label: 'Estudiantes',
+                            data: Object.values(conteoPerfiles),
+
+                            // Azul acorde con la nueva interfaz
+                            backgroundColor: '#4265C4',
+                            hoverBackgroundColor: '#6688E5',
+                            borderRadius: 6,
+                            maxBarThickness: 38
+                        }]
                     },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: function(context) { return context[0].label; }
+
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+
+                        layout: {
+                            padding: {
+                                top: 12,
+                                right: 16,
+                                bottom: 8,
+                                left: 8
+                            }
+                        },
+
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+
+                                ticks: {
+                                    color: '#9CAFCB',
+                                    precision: 0
+                                },
+
+                                grid: {
+                                    color: 'rgba(156, 184, 255, 0.10)'
+                                },
+
+                                border: {
+                                    display: false
+                                }
+                            },
+
+                            y: {
+                                ticks: {
+                                    color: '#D6DEEF',
+
+                                    font: {
+                                        size: 11
+                                    },
+
+                                    padding: 10,
+
+                                    autoSkip: false,
+
+                                    callback: function(value) {
+                                        const etiqueta =
+                                            this.getLabelForValue(value);
+
+                                        return dividirEtiqueta(etiqueta);
+                                    }
+                                },
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                }
+                            }
+                        },
+
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+
+                            tooltip: {
+                                backgroundColor: '#171D2B',
+                                titleColor: '#FFFFFF',
+                                bodyColor: '#D6DEEF',
+                                borderColor: '#4265C4',
+                                borderWidth: 1,
+                                padding: 12,
+
+                                callbacks: {
+                                    title: function(context) {
+                                        return context[0].label;
+                                    },
+
+                                    label: function(context) {
+                                        return `Estudiantes: ${context.parsed.x}`;
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            });
+            );
         }
 
         limpiarFiltros();

@@ -26,7 +26,7 @@ def get_db_connection():
     try:
         conn = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            "SERVER=localhost\\SQLEXPRESS01;"
+            "SERVER=localhost\\SQLEXPRESS;"
             "DATABASE=TrayectoriaDB;"
             "Trusted_connection=yes;"
         )

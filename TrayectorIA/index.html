@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
+    <canvas id="trayectoria-aurora" aria-hidden="true"></canvas>
 
     <!-- BARRA SUPERIOR FIJA -->
     <header class="top-navbar">
@@ -22,7 +23,7 @@
                     <i class="ri-align-justify"></i>
                 </button>
                 <div class="brand-logo">
-                    <img src="Imagenes/ICO.png" alt="Logo TrayectorIA" class="logo-img">
+                    <img src="Imagenes/ICO_BLAN.png" alt="Logo TrayectorIA" class="logo-img">
                     TrayectorIA
                 </div>
             </div>
@@ -58,8 +59,8 @@
         <!-- HERO SECTION (Público) -->
         <section id="inicio" class="hero">
             <div class="container">
-                <img src="Imagenes/LOGO1.png" alt="Logo TrayectorIA" class="hero-logo">
-                <p>Identificamos señales. Anticipamos riesgos. Acompañamos futuros.</p>
+                <img src="Imagenes/LOGO_BLANCO.png" alt="Logo TrayectorIA" class="hero-logo">
+                <p>Identificamos señales, Anticipamos riesgos, Acompañamos futuros.</p>
             </div>
         </section>
 
@@ -67,12 +68,12 @@
         <section id="problema" class="section-dark">
             <div class="container">
                 <h2>Contexto del Problema</h2>
-                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año)[cite: 7]. Los sistemas preventivos actuales tienen un amplio margen de mejora[cite: 7].</p>
+                <p class="intro">La deserción estudiantil es una problemática crítica en la educación superior (en 2024, el 22,7% de los alumnos abandonaron su carrera en primer año). Los sistemas preventivos actuales tienen un amplio margen de mejora.</p>
                 
                 <div class="problem-single">
                     <div class="card-solucion">
                         <h3>Nuestra Solución</h3>
-                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia[cite: 7].</p>
+                        <p>Desarrollamos modelos predictivos mediante minería de datos y aprendizaje automático para identificar perfiles de riesgo y facilitar intervenciones preventivas basadas en evidencia.</p>
                     </div>
                 </div>
             </div>
@@ -83,16 +84,16 @@
             <div class="container">
                 <h2>Nuestra Misión es...</h2>
                 <div class="main-objetivo">
-                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción[cite: 7].</p>
+                    <p>Desarrollar un modelo predictivo basado en técnicas de minería de datos y aprendizaje automático que permita identificar anticipadamente a estudiantes con riesgo de deserción.</p>
                 </div>
                 <ul class="lista-objetivos">
                     <h3>Logramos esto mediante...</h3>
-                    <li>Preparar un conjunto de datos robusto para su posterior análisis[cite: 7].</li>
-                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos[cite: 7].</li>
-                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento[cite: 7].</li>
-                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción[cite: 7].</li>
-                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos[cite: 7].</li>
-                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución[cite: 7].</li>
+                    <li>Preparar un conjunto de datos robusto para su posterior análisis.</li>
+                    <li>Realizar un análisis exploratorio para descubrir patrones iniciales en los datos.</li>
+                    <li>Evaluar diversos modelos de aprendizaje automático para identificar el de mejor rendimiento.</li>
+                    <li>Identificar y clasificar los perfiles clave de estudiantes con mayor riesgo de deserción.</li>
+                    <li>Validar y medir rigurosamente los resultados predictivos obtenidos.</li>
+                    <li>Desarrollar visualizaciones con insights clave y propuestas de solución.</li>
                 </ul>
             </div>
         </section>
@@ -100,22 +101,19 @@
         <!-- EQUIPO DE TRABAJO (Público) -->
         <section id="equipo" class="section-light">
             <div class="container">
-                <h2>Nuestros Integrantes</h2>
+                <h2>Nuestros Equipo de Desarrollo</h2>
                 <div class="team-grid">
                     <div class="team-card">
-                        <h3>INTEGRANTE 1</h3>
-                        <p><strong>Nombre:</strong> Benjamin Torres</p>
-                        <p><strong>Rol:</strong> Líder Técnico / ML Engineer & Backend[cite: 7]</p>
+                        <h3>Benjamin Torres</h3>
+                        <p><strong>Rol:</strong> ML Engineer / Data Engineer / Project Documentation</p>
                     </div>
                     <div class="team-card">
-                        <h3>INTEGRANTE 2</h3>
-                        <p><strong>Nombre:</strong> Denilxon Azua</p>
-                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist[cite: 7]</p>
+                        <h3>Denilxon Azua</h3>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist / Backend</p>
                     </div>
                     <div class="team-card">
-                        <h3>INTEGRANTE 3</h3>
-                        <p><strong>Nombre:</strong> Juan Carlos Rebolledo</p>
-                        <p><strong>Rol:</strong> Data Engineer / QA Continuo & Project Documentation[cite: 7]</p>
+                        <h3>Juan Carlos Rebolledo</h3>
+                        <p><strong>Rol:</strong> Frontend Developer / UX & Data Visualization Specialist / Project Documentation</p>
                     </div>
                 </div>
             </div>
@@ -437,6 +435,7 @@
 
     <!-- SCRIPTS EN ORDEN CORRECTO -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/aurora.js"></script>
     <script src="js/main.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/upload.js"></script>
