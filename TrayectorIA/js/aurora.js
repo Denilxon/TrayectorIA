@@ -18,10 +18,10 @@
   const spacing = 15;
 
   // Velocidad de oscilación de las ondas
-  const waveSpeed = 7.0;
+  const waveSpeed = 10.0;
 
   // Transparencia de los puntos
-  const opacityFactor = 0.6;
+  const opacityFactor = 0.7;
 
   // Intensidad del resplandor azul
   const glowOpacity = 0.32;
