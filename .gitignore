@@ -1,0 +1,11 @@
+# Entorno virtual de Python
+.venv/
+venv/
+
+# Caché y archivos compilados de Python
+__pycache__/
+*.py[cod]
+
+# Archivos temporales
+*.log
+.pytest_cache/
