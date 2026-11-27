@@ -272,46 +272,153 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- DESCARGA INDIVIDUAL DE FICHA ESTUDIANTIL EN PDF ---
+    // --- DESCARGA INDIVIDUAL DE FICHA ESTUDIANTIL EN PDF (VECTORIAL SIN HOJA EN BLANCO) ---
     if (downloadStudentPdfBtn) {
         downloadStudentPdfBtn.addEventListener('click', () => {
-            const modalCard = document.querySelector('.student-modal-card');
-            const modalBody = document.querySelector('.student-modal-body');
-            const closeBtn = document.getElementById('close-student-modal');
-            const studentTitle = document.getElementById('modal-student-id')?.textContent || 'Estudiante';
+            const studentTitle = document.getElementById('modal-student-id')?.textContent.trim() || 'Estudiante';
+            const riesgo = document.getElementById('modal-student-badge')?.textContent.trim() || 'No definido';
+            const perfil = document.getElementById('modal-student-perfil')?.textContent.trim() || 'Sin perfil';
+            const prob = document.getElementById('modal-student-prob')?.textContent.trim() || '-';
+            const intervencion = document.getElementById('modal-student-intervencion')?.textContent.trim() || 'Seguimiento general.';
 
-            if (!modalCard) return;
+            // Extraer alertas respetando la estructura de tarjetas (.alerta-individual) o texto plano
+            const contenedorAlertas = document.getElementById('modal-student-alertas');
+            let listaAlertasTexto = [];
 
-            const prevMaxHeight = modalCard.style.maxHeight;
-            const prevOverflow = modalBody ? modalBody.style.overflowY : '';
-            
-            modalCard.style.maxHeight = 'none';
-            if (modalBody) modalBody.style.overflowY = 'visible';
-            downloadStudentPdfBtn.style.display = 'none';
-            if (closeBtn) closeBtn.style.display = 'none';
+            if (contenedorAlertas) {
+                const itemsAlerta = contenedorAlertas.querySelectorAll('.alerta-individual');
+                if (itemsAlerta.length > 0) {
+                    itemsAlerta.forEach(item => {
+                        const titulo = item.querySelector('.alerta-titulo')?.textContent.trim() || '';
+                        const desc = item.querySelector('.alerta-descripcion')?.textContent.trim() || '';
+                        if (titulo && desc) {
+                            listaAlertasTexto.push(`• ${titulo}: ${desc}`);
+                        } else {
+                            listaAlertasTexto.push(`• ${item.textContent.trim()}`);
+                        }
+                    });
+                } else {
+                    const textoPlano = contenedorAlertas.textContent.trim();
+                    if (textoPlano) listaAlertasTexto.push(textoPlano);
+                }
+            }
 
-            const opt = {
-                margin: 10,
-                filename: `Ficha_${studentTitle.replace(/\s+/g, '_').replace('#', '')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, backgroundColor: '#15151b' },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            if (listaAlertasTexto.length === 0) {
+                listaAlertasTexto.push('Sin factores de alerta registrados.');
+            }
 
-            html2pdf().set(opt).from(modalCard).save().then(() => {
-                modalCard.style.maxHeight = prevMaxHeight;
-                if (modalBody) modalBody.style.overflowY = prevOverflow;
-                downloadStudentPdfBtn.style.display = 'inline-flex';
-                if (closeBtn) closeBtn.style.display = 'block';
-                notify('Ficha del estudiante descargada.', 'success');
-            }).catch(err => {
-                modalCard.style.maxHeight = prevMaxHeight;
-                if (modalBody) modalBody.style.overflowY = prevOverflow;
-                downloadStudentPdfBtn.style.display = 'inline-flex';
-                if (closeBtn) closeBtn.style.display = 'block';
-                console.error('Error al descargar ficha:', err);
+            // Verificar que jsPDF esté disponible (viene incluido en html2pdf.bundle.min.js)
+            const { jsPDF } = window.jspdf || {};
+            if (!jsPDF) {
+                notify('No se encontró la librería jsPDF para generar el documento.', 'error');
+                return;
+            }
+
+            try {
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const margenIzq = 20;
+                const anchoUtil = 170;
+                let cursorY = 20;
+
+                // 1. Encabezado institucional oscuro
+                doc.setFillColor(11, 17, 32); // #0b1120
+                doc.rect(0, 0, 210, 44, 'F');
+
+                doc.setTextColor(56, 189, 248); // #38bdf8
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'bold');
+                doc.text('TRAYECTORIA  |  FICHA INDIVIDUAL DE ESTUDIANTE', margenIzq, 15);
+
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(19);
+                doc.text(studentTitle, margenIzq, 27);
+
+                doc.setFontSize(11);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(203, 213, 225);
+                doc.text(`Nivel de Riesgo: ${riesgo.toUpperCase()}    |    Probabilidad de Deserción: ${prob}`, margenIzq, 36);
+
+                cursorY = 58;
+
+                // 2. Sección Perfil / Cluster Asignado
+                doc.setTextColor(15, 23, 42);
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Perfil / Cluster Asignado:', margenIzq, cursorY);
+                cursorY += 7;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor(51, 65, 85);
+                const lineasPerfil = doc.splitTextToSize(perfil, anchoUtil);
+                doc.text(lineasPerfil, margenIzq, cursorY);
+                cursorY += (lineasPerfil.length * 6) + 10;
+
+                // Línea separadora sutil
+                doc.setDrawColor(226, 232, 240);
+                doc.line(margenIzq, cursorY - 5, 190, cursorY - 5);
+
+                // 3. Sección Factores de Alerta
+                doc.setTextColor(185, 28, 28); // Rojo institucional legible
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Factores de Alerta Detectados:', margenIzq, cursorY);
+                cursorY += 7;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor(51, 65, 85);
+
+                listaAlertasTexto.forEach(lineaAlerta => {
+                    const lineas = doc.splitTextToSize(lineaAlerta, anchoUtil);
+                    if (cursorY + (lineas.length * 6) > 270) {
+                        doc.addPage();
+                        cursorY = 20;
+                    }
+                    doc.text(lineas, margenIzq, cursorY);
+                    cursorY += (lineas.length * 6) + 3;
+                });
+
+                cursorY += 7;
+                doc.line(margenIzq, cursorY - 5, 190, cursorY - 5);
+
+                // 4. Sección Intervención Sugerida
+                if (cursorY > 245) {
+                    doc.addPage();
+                    cursorY = 20;
+                }
+
+                doc.setTextColor(3, 105, 161); // Azul institucional legible
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Intervención y Recomendaciones Sugeridas:', margenIzq, cursorY);
+                cursorY += 7;
+
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                doc.setTextColor(51, 65, 85);
+                const lineasIntervencion = doc.splitTextToSize(intervencion, anchoUtil);
+                doc.text(lineasIntervencion, margenIzq, cursorY);
+
+                // 5. Pie de página
+                const fechaHoy = new Date().toLocaleDateString('es-CL');
+                doc.setFontSize(9);
+                doc.setTextColor(148, 163, 184);
+                doc.text(`Documento generado por TrayectorIA el ${fechaHoy}`, margenIzq, 284);
+
+                const nombreArchivo = studentTitle.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
+                doc.save(`Ficha_${nombreArchivo}.pdf`);
+
+                notify('Ficha del estudiante descargada correctamente.', 'success');
+            } catch (err) {
+                console.error('Error al generar ficha PDF:', err);
                 notify('Error al generar el PDF de la ficha.', 'error');
-            });
+            }
         });
     }
 
